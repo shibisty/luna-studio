@@ -1,0 +1,291 @@
+{
+  "files": [
+    {
+      "file": "dropbox-callback.html",
+      "package": "grapesjs-cloud-assets",
+      "version": "0.9.0",
+      "source": "github.com/shibisty/grapes-cloud (public/)",
+      "sha256": "340c8ad08ce7ace2145d5ffaae99e9a6a7f6ec979be91c2cbf447a170424c6b6"
+    },
+    {
+      "file": "font-awesome.min.css",
+      "package": "font-awesome",
+      "version": "4.7.0",
+      "source": "npm, @font-face rewritten (see README)",
+      "sha256": "d79dcedf038766a2c6a0d53c41cb63a2ce028b4544e3a9171f4a2dd1ea5a9cd2"
+    },
+    {
+      "file": "fontawesome-webfont.woff",
+      "package": "font-awesome",
+      "version": "4.7.0",
+      "source": "npm",
+      "sha256": "ba0c59deb5450f5cb41b3f93609ee2d0d995415877ddfa223e8a8a7533474f07"
+    },
+    {
+      "file": "fontawesome-webfont.woff2",
+      "package": "font-awesome",
+      "version": "4.7.0",
+      "source": "npm",
+      "sha256": "2adefcbc041e7d18fcf2d417879dc5a09997aa64d675b7a3c4b6ce33da13f3fe"
+    },
+    {
+      "file": "grapes.min.css",
+      "package": "grapesjs",
+      "version": "0.23.9",
+      "source": "npm",
+      "sha256": "fb55e939b3349c280d68c0617dc87e56baa3eab55ea56a1855db9f5efcc7268d"
+    },
+    {
+      "file": "grapes.min.js",
+      "package": "grapesjs",
+      "version": "0.23.9",
+      "source": "npm",
+      "sha256": "c98fa40d409c1630f1471438c1b2fa59e1087e7251c74b49c2af75f42c3bf049"
+    },
+    {
+      "file": "grapesjs-blocks-basic.js",
+      "package": "grapesjs-blocks-basic",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "5d7ea05d4dec26d7e028106e70a7db19d29ebb82b3bd4049f9dbcb096e68a1f8"
+    },
+    {
+      "file": "grapesjs-cloud-assets.js",
+      "package": "grapesjs-cloud-assets",
+      "version": "0.9.0",
+      "source": "github.com/shibisty/grapes-cloud",
+      "sha256": "ff7f416a06e124aae96c926bab0dcbabbdafe1cfc912a355385015a0dc7f1d31"
+    },
+    {
+      "file": "grapesjs-component-countdown.js",
+      "package": "grapesjs-component-countdown",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "ca1fe0848c3fd784c68f6deb44a1982a98303f77093e5e87934bebc8d2fd375b"
+    },
+    {
+      "file": "grapesjs-context-menu.js",
+      "package": "grapesjs-context-menu",
+      "version": "1.1.0",
+      "source": "github.com/shibisty/grapesjs-context-menu@e94b513",
+      "sha256": "1948e3750b592d27df481d273f501f083c40582b2db4704d7abd584acd00d697"
+    },
+    {
+      "file": "grapesjs-custom-code.js",
+      "package": "grapesjs-custom-code",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "15d6721717d7ced1c3dbf36d3995c0e174dbade9dc6cab0d102db42126d36d37"
+    },
+    {
+      "file": "grapesjs-fonts.js",
+      "package": "grapesjs-fonts",
+      "version": "0.2.0",
+      "source": "github.com/shibisty/grapesjs-fonts",
+      "sha256": "60d14ca46ca9902f46a3531b8163db020c80e2d20695e73fadca4dcae9388ba8"
+    },
+    {
+      "file": "grapesjs-locale-ru.js",
+      "package": "grapesjs",
+      "version": "0.23.9",
+      "source": "npm grapesjs locale/ru.js, wrapped for a <script> tag (see README)",
+      "sha256": "0d90514ed9ad201f6fe783b0aad4ae0494aca05739794eb08518e5fa91006fe3"
+    },
+    {
+      "file": "grapesjs-navbar.js",
+      "package": "grapesjs-navbar",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "5d7ba202d2960ca2528ea34d6e30d458333964184e507c214e7d6f021973c70c"
+    },
+    {
+      "file": "grapesjs-pages.js",
+      "package": "grapesjs-pages",
+      "version": "2.5.0",
+      "source": "github.com/shibisty/grapesjs-pages",
+      "sha256": "9921d7a91428eb47dec496bbb29721edb3f396a020f6d64854ea0510ebe70677"
+    },
+    {
+      "file": "grapesjs-parser-postcss.js",
+      "package": "grapesjs-parser-postcss",
+      "version": "1.0.3",
+      "source": "npm",
+      "sha256": "e1449e4e79b43f415e0d747fa666572d4febacbed536fd5b5bc599d01183f6ec"
+    },
+    {
+      "file": "grapesjs-plugin-export.js",
+      "package": "grapesjs-plugin-export",
+      "version": "1.0.12",
+      "source": "npm",
+      "sha256": "ddc209c6d4d0fd448ec3de88d2cda68a6944316752f8dfd5cf5bc8bd961ca4f7"
+    },
+    {
+      "file": "grapesjs-plugin-forms.js",
+      "package": "grapesjs-plugin-forms",
+      "version": "2.0.6",
+      "source": "npm",
+      "sha256": "ba11763cea107077cae2c0afabd633206b0d215bdc08ee29169e846e214e0347"
+    },
+    {
+      "file": "grapesjs-preset-webpage.js",
+      "package": "grapesjs-preset-webpage",
+      "version": "1.0.3",
+      "source": "npm",
+      "sha256": "6c6e48aad954f7e8ac70623f1a7ecbc5f0c03b38bc8462810d8ff536cab1c8c3"
+    },
+    {
+      "file": "grapesjs-scripts.js",
+      "package": "grapesjs-scripts",
+      "version": "0.2.0",
+      "source": "github.com/shibisty/grapesjs-scripts",
+      "sha256": "508dc72b46ad473fcfa1a90be7915fe031c52928e9dfec98d0e63517cabbbd1e"
+    },
+    {
+      "file": "grapesjs-sidebar-tools.js",
+      "package": "grapesjs-sidebar-tools",
+      "version": "2.2.0",
+      "source": "github.com/shibisty/grapesjs-sidebar-tools@c314b57",
+      "sha256": "7e7f91d15cb87e1caa85b5113b735a1cfd8018cb6f1b2b029570d77dd77839eb"
+    },
+    {
+      "file": "grapesjs-storage.js",
+      "package": "grapesjs-storage",
+      "version": "0.2.0",
+      "source": "github.com/shibisty/grapesjs-storage",
+      "sha256": "ec00f5bc3d0cc31b21a0691452e3a63a09fc9776f1659adab071f2963af8380e"
+    },
+    {
+      "file": "grapesjs-style-bg.js",
+      "package": "grapesjs-style-bg",
+      "version": "2.0.2",
+      "source": "npm",
+      "sha256": "fbf953d2215eec544eedd9a959f07dd7bb2452c0977639fc2646febdc0bf4558"
+    },
+    {
+      "file": "grapesjs-style-filter.js",
+      "package": "grapesjs-style-filter",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "acca1b229139a92c645d5891523e9525b8c63994b61df7a9421785a877942977"
+    },
+    {
+      "file": "grapesjs-style-gradient.js",
+      "package": "grapesjs-style-gradient",
+      "version": "3.0.3",
+      "source": "npm",
+      "sha256": "9a8791a39235677675b5ed7f1d13b890ba01a1842bc525b6c1f203b22c3f8208"
+    },
+    {
+      "file": "grapesjs-tabs.js",
+      "package": "grapesjs-tabs",
+      "version": "1.0.6",
+      "source": "npm (dist/grapesjs-tabs.min.js)",
+      "sha256": "7a569bd00a6b5f0cc0fe61cba0fc7216fd31f76372ef3f9b907ed65c3f936c21"
+    },
+    {
+      "file": "grapesjs-tooltip.js",
+      "package": "grapesjs-tooltip",
+      "version": "0.1.8",
+      "source": "npm",
+      "sha256": "6c80b64103e633f2604a6b83f784dd0ac29cb5c8341cca6117a1be99dd268618"
+    },
+    {
+      "file": "grapesjs-tui-image-editor.js",
+      "package": "grapesjs-tui-image-editor",
+      "version": "1.0.2",
+      "source": "npm",
+      "sha256": "0f393a5efc288b475ede71785ec5d0e7d74a5eb4fdc53e17ac12b6500f585830"
+    },
+    {
+      "file": "grapesjs-typed.js",
+      "package": "grapesjs-typed",
+      "version": "2.0.1",
+      "source": "npm",
+      "sha256": "983bacb434edd219cb0c58a0d5e9eff7a8f9b5a878ed46f069a31f6ca351c38a"
+    },
+    {
+      "file": "grapick.min.css",
+      "package": "grapick",
+      "version": "0.1.13",
+      "source": "npm",
+      "sha256": "326c23e018693a03f0636286aa7b419e27eaa3a6e94e4aceef62e94332229563"
+    },
+    {
+      "file": "luna-theme.css",
+      "package": "luna-theme",
+      "version": "1.0.0",
+      "source": "ours: Luna's theme for GrapesJS (light, after MUI)",
+      "sha256": "42f97171387fef75845babf00e8347d9839f5a8ced343403ddd187db0de01934"
+    },
+    {
+      "file": "microsoft-callback.html",
+      "package": "grapesjs-cloud-assets",
+      "version": "0.9.0",
+      "source": "github.com/shibisty/grapes-cloud (public/)",
+      "sha256": "d34e2dcbc7dd2dafc8b3c0db00edd60e6a0857014490500a34d632b62f98da1a"
+    },
+    {
+      "file": "roboto-cyrillic-400-normal.woff2",
+      "package": "@fontsource/roboto",
+      "version": "5.3.0",
+      "source": "npm (files/)",
+      "sha256": "fe349e5377e88095a1b04b615bf5e745f1899556545383c348a007aab628815e"
+    },
+    {
+      "file": "roboto-cyrillic-500-normal.woff2",
+      "package": "@fontsource/roboto",
+      "version": "5.3.0",
+      "source": "npm (files/)",
+      "sha256": "0991339551f58fb49d106c4b2a2beaf403823c0cdd0ed99d1a38f1a8b20d1595"
+    },
+    {
+      "file": "roboto-latin-400-normal.woff2",
+      "package": "@fontsource/roboto",
+      "version": "5.3.0",
+      "source": "npm (files/)",
+      "sha256": "425c0713a8176f92273d378599c7eac57de7fafabd4bd0ed457b70eb8f80d371"
+    },
+    {
+      "file": "roboto-latin-500-normal.woff2",
+      "package": "@fontsource/roboto",
+      "version": "5.3.0",
+      "source": "npm (files/)",
+      "sha256": "5bcc3aa180e7f26f643cd5b2621cd7c2de193d0661d913a94afd3d4881a7a34b"
+    },
+    {
+      "file": "tui-code-snippet.min.js",
+      "package": "tui-code-snippet",
+      "version": "1.5.2",
+      "source": "npm",
+      "sha256": "deca28158c01c4363ab7f4f11356c3967a0c4dfdc1c1a1963cc3201703e3c48e"
+    },
+    {
+      "file": "tui-color-picker.min.css",
+      "package": "tui-color-picker",
+      "version": "2.2.7",
+      "source": "npm",
+      "sha256": "f2d60245eb32ce3726786535fcb32c5eb77971d16c0ac5b3f08431095c0f579d"
+    },
+    {
+      "file": "tui-color-picker.min.js",
+      "package": "tui-color-picker",
+      "version": "2.2.7",
+      "source": "npm",
+      "sha256": "a4451f595af9d36f61d2b187553710f37ff4db50a49716f137dfcc3326baadff"
+    },
+    {
+      "file": "tui-image-editor.min.css",
+      "package": "tui-image-editor",
+      "version": "3.15.2",
+      "source": "npm",
+      "sha256": "e4e2ca219fa885b9a4cb7356097b76d4d5e78544d98b947a366f609eb47e92f8"
+    },
+    {
+      "file": "tui-image-editor.min.js",
+      "package": "tui-image-editor",
+      "version": "3.15.2",
+      "source": "npm (Fabric.js inside)",
+      "sha256": "01db2fda4c4928a623dfd35ac139d25d10b7d6f4826e5987b437a5eed7f590f7"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "luna-studio",
+  "version": "0.1.0",
+  "description": "The Luna site editor (GrapesJS with Luna's plugins and settings) as a local app: edit a site kept as a folder at localhost, export it as an archive, or sign in to a Luna dashboard and edit an application's site directly.",
+  "type": "module",
+  "bin": {
+    "luna-studio": "bin/luna-studio.js"
+  },
+  "main": "./dist/server/index.js",
+  "exports": {
+    ".": "./dist/server/index.js",
+    "./editor": "./dist/editor/luna-editor.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:editor && npm run build:app && npm run build:server",
+    "build:editor": "vite build --config vite.editor.config.ts",
+    "build:app": "vite build",
+    "build:server": "vite build --config vite.server.config.ts",
+    "start": "node bin/luna-studio.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "vendor:plugins": "node scripts/vendor-plugins.mjs",
+    "sync:dashboard": "node scripts/sync-dashboard.mjs",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "vite": "5.4.11"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "fflate": "^0.8.3",
+    "grapesjs-pages": "file:../plugins/grapesjs-pages",
+    "typescript": "5.6.3",
+    "vitest": "^2.1.9"
+  },
+  "keywords": [
+    "grapesjs",
+    "luna",
+    "site-editor",
+    "cms",
+    "page-builder",
+    "vite"
+  ],
+  "author": "Alexander Shibisty",
+  "license": "MIT"
+}
