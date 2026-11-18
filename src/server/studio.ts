@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Plugin } from 'vite';
-import { readArchive } from 'grapesjs-pages/archive';
+import { readArchive } from 'grapesjs-site-pages/archive';
 import { fail, HttpError, json, pathOf, queryOf, readBody, readJson, type Next, type Req, type Res } from './http';
 import { contentApi, editorApi, previewHtml } from './localApi';
 import { normalizeDashboard, Remote } from './remote';

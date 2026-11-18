@@ -122,8 +122,9 @@ npm run vendor:plugins [name]   # our plugins' builds (../plugins/<name>/dist) i
 npm run sync:dashboard [path]   # the bundle + luna-editor.js into luna-dashboard's resources/editor
 ```
 
-`grapesjs-pages` is a dev dependency from `../plugins/grapesjs-pages` (its
-`grapesjs-pages/archive` export is bundled into the server). `public/editor`
+`grapesjs-site-pages` (the grapesjs-pages plugin's npm name) is a dev
+dependency from `../plugins/grapesjs-pages` (its `grapesjs-site-pages/archive`
+export is bundled into the server). `public/editor`
 is the editor bundle with its `manifest.json` (see its README); luna-dashboard
 keeps a copy, so update it here and sync.
 

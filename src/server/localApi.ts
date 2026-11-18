@@ -1,4 +1,4 @@
-import { compose } from 'grapesjs-pages/archive';
+import { compose } from 'grapesjs-site-pages/archive';
 import { fail, HttpError, ifMatch, json, queryOf, readJson, type Req, type Res } from './http';
 import { entryJSON, type Kind, type Rec, SiteStore } from './siteStore';
 

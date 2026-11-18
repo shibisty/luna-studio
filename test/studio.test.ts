@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { readArchive } from 'grapesjs-pages/archive';
+import { readArchive } from 'grapesjs-site-pages/archive';
 import { createStudio, type Studio } from '../src/server/studio';
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;

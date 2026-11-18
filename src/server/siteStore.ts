@@ -1,7 +1,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import { archiveFiles, packArchive, readArchiveFiles, type ArchiveRecord } from 'grapesjs-pages/archive';
+import { archiveFiles, packArchive, readArchiveFiles, type ArchiveRecord } from 'grapesjs-site-pages/archive';
 
 /**
  * A site kept as a folder: the layout of a grapesjs-pages archive

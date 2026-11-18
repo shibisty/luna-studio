@@ -18,5 +18,5 @@ export default defineConfig({
       external: ['vite', /^node:/],
     },
   },
-  ssr: { noExternal: ['grapesjs-pages', 'fflate'] },
+  ssr: { noExternal: ['grapesjs-site-pages', 'fflate'] },
 });
