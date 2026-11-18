@@ -29,7 +29,8 @@ export function json(res: Res, status: number, data?: unknown, headers: Record<s
 export function fail(res: Res, e: unknown): void {
   const err = e as { status?: number; message?: string; errors?: Record<string, string[]> };
   const status = typeof err?.status === 'number' ? err.status : 500;
-  if (status >= 500) console.error('[luna-studio]', e);
+  // Unexpected failures only: a 502 (a dashboard that does not answer) is the message itself.
+  if (status === 500) console.error('[luna-studio]', e);
   json(res, status, { error: err?.message || 'Internal error', ...(err?.errors ? { errors: err.errors } : {}) });
 }
 

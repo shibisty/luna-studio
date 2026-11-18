@@ -117,16 +117,19 @@ without a CORS preflight (never answered) and DNS rebinding gets 403.
 npm install
 npm run dev                 # Vite with hot reload; the site in ./site (STUDIO_DIR), STUDIO_DASHBOARD
 npm test                    # vitest: the folder store, the API, the sign-in
-npm run build               # dist/editor, dist/app, dist/server
-npm run vendor:plugins [name]   # our plugins' builds (../plugins/<name>/dist) into public/editor
+npm run build               # the bundle, dist/editor, dist/app, dist/server
+npm run bundle              # only the editor bundle: public/editor from node_modules
 npm run sync:dashboard [path]   # the bundle + luna-editor.js into luna-dashboard's resources/editor
 ```
 
-`grapesjs-site-pages` (the grapesjs-pages plugin's npm name) is a dev
-dependency from `../plugins/grapesjs-pages` (its `grapesjs-site-pages/archive`
-export is bundled into the server). `public/editor`
-is the editor bundle with its `manifest.json` (see its README); luna-dashboard
-keeps a copy, so update it here and sync.
+Every editor file comes from npm: GrapesJS, the official plugins and ours
+(`grapesjs-site-pages` — grapesjs-pages' npm name —, `grapesjs-storage`,
+`grapesjs-blueprints`, `grapesjs-fonts`, `grapesjs-sidebar-tools`,
+`grapesjs-context-menu`, `grapesjs-cloud-assets`), pinned in `devDependencies`.
+`npm run bundle` puts them in `public/editor` (git-ignored) with a
+`manifest.json` of versions and hashes; see [editor/README.md](editor/README.md).
+The server bundles `grapesjs-site-pages/archive` (the archive format). The
+published package carries the built app, so it needs only `vite` at run time.
 
 ## License
 

@@ -137,7 +137,13 @@ export function createStudio(opts: StudioOptions): Studio {
     if ((m = p.match(/^\/studio\/fonts\/(.+)$/)) && method === 'GET') {
       const src = (await remote.account())?.url || dashboard;
       const q = (req.url || '').split('?')[1];
-      const r = await doFetch(`${src}/editor/fonts/${m[1]}${q ? `?${q}` : ''}`, { headers: { Accept: 'application/json' } });
+      let r: Response;
+      try {
+        r = await doFetch(`${src}/editor/fonts/${m[1]}${q ? `?${q}` : ''}`, { headers: { Accept: 'application/json' } });
+      } catch {
+        // The dashboard is not reachable: the fonts panel shows its own error.
+        throw new HttpError(502, `The font catalogues come through ${src}, which does not answer.`);
+      }
       res.statusCode = r.status;
       res.setHeader('Content-Type', r.headers.get('content-type') || 'application/json');
       res.setHeader('Cache-Control', 'public, max-age=3600');

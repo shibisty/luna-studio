@@ -26,6 +26,7 @@ const fakeDashboard: typeof fetch = async (input, init) => {
     if (b.code !== 'good-code' || !b.code_verifier) return j(400, { error: 'invalid_grant' });
     return j(200, { access_token: 'lst_secret', token_type: 'Bearer', expires_in: 3600, developer: { name: 'Alex', email: 'a@x' } });
   }
+  if (url.includes('/editor/fonts/')) throw new TypeError('fetch failed'); // the dashboard is down
   const auth = new Headers(init?.headers as HeadersInit).get('authorization');
   if (auth !== 'Bearer lst_secret') return j(401, { error: 'unauthorized' });
   if (url === 'https://dash.test/studio/v1/apps') return j(200, { items: [{ id: 'app1', name: 'Shop' }] });
@@ -274,6 +275,12 @@ describe('signing in to a dashboard', () => {
     await call('POST', '/studio/api/sign-out');
     expect(dashboardCalls.some((c) => c.url.endsWith('/studio/revoke'))).toBe(true);
     expect((await call('GET', '/studio/api/apps')).status).toBe(401);
+  });
+
+  it('answers 502 when the fonts catalogues cannot be reached', async () => {
+    const r = await call('GET', '/studio/fonts/google/v1/fonts');
+    expect(r.status).toBe(502);
+    expect(r.json.error).toContain('https://dash.test');
   });
 
   it('refuses plain http to a remote dashboard', async () => {

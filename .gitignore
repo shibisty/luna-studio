@@ -2,3 +2,5 @@ node_modules/
 dist/
 *.log
 /site/
+# generated from node_modules by npm run bundle
+/public/editor/
