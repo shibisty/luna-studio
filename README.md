@@ -175,7 +175,7 @@ npm run dev                 # Vite with hot reload; the site in ./site (STUDIO_D
 npm test                    # vitest: the folder store, the API, the sign-in, the MCP server
 npm run build               # the bundle, dist/editor, dist/app, dist/server
 npm run bundle              # only the editor bundle: public/editor from node_modules
-npm run sync:dashboard [path]   # the bundle + luna-editor.js into luna-dashboard's resources/editor
+npm run sync:dashboard [path]   # try a local build in luna-dashboard's resources/editor (before publishing)
 ```
 
 Every editor file comes from npm: GrapesJS, the official plugins and ours
@@ -186,6 +186,11 @@ Every editor file comes from npm: GrapesJS, the official plugins and ours
 `manifest.json` of versions and hashes; see [editor/README.md](editor/README.md).
 The server bundles `grapesjs-site-pages/archive` (the archive format). The
 published package carries the built app, so it needs only `vite` at run time.
+
+**Releasing the editor to luna-dashboard:** bump the version, `npm publish`,
+then in luna-dashboard `go run . editor:update` (it takes the bundle and
+`luna-editor.js` from npm, checks them and writes `resources/editor`; the load
+order comes with the manifest), and deploy the dashboard.
 
 ## License
 

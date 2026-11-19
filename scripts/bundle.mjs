@@ -126,7 +126,15 @@ for (const [file, pkg, version, source] of OWN) {
 }
 files.set('README.md', readFileSync(join(own, 'README.md')));
 entries.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0));
-const manifest = Buffer.from(JSON.stringify({ files: entries }, null, 2) + '\n');
+// What loads the bundle needs: the load order (src/editor/load.json) and
+// which luna-studio made it. luna-dashboard reads both.
+const load = JSON.parse(readFileSync(join(root, 'src/editor/load.json'), 'utf8'));
+delete load['//'];
+for (const f of [...load.scripts, ...load.styles, ...load.tuiScripts, ...load.tuiStyles]) {
+  if (!files.has(f)) throw new Error(`src/editor/load.json lists ${f}, which the bundle does not have`);
+}
+const studio = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
+const manifest = Buffer.from(JSON.stringify({ studio, load, files: entries }, null, 2) + '\n');
 files.set('manifest.json', manifest);
 
 if (check) {

@@ -1,0 +1,44 @@
+{
+  "//": "The editor bundle's load order. luna-studio's app loads it (src/editor/bundle.ts) and writes it into manifest.json (scripts/bundle.mjs), where luna-dashboard reads it: a new plugin script needs no change there.",
+  "scripts": [
+    "grapes.min.js",
+    "grapesjs-locale-ru.js",
+    "grapesjs-preset-webpage.js",
+    "grapesjs-blocks-basic.js",
+    "grapesjs-plugin-forms.js",
+    "grapesjs-navbar.js",
+    "grapesjs-tabs.js",
+    "grapesjs-component-countdown.js",
+    "grapesjs-custom-code.js",
+    "grapesjs-tooltip.js",
+    "grapesjs-typed.js",
+    "grapesjs-parser-postcss.js",
+    "grapesjs-style-gradient.js",
+    "grapesjs-style-bg.js",
+    "grapesjs-style-filter.js",
+    "grapesjs-plugin-export.js",
+    "grapesjs-tui-image-editor.js",
+    "grapesjs-cloud-assets.js",
+    "grapesjs-sidebar-tools.js",
+    "grapesjs-ruler.js",
+    "grapesjs-context-menu.js",
+    "grapesjs-fonts.js",
+    "grapesjs-scripts.js",
+    "grapesjs-pages.js",
+    "grapesjs-storage.js"
+  ],
+  "styles": [
+    "grapes.min.css",
+    "grapick.min.css",
+    "luna-theme.css"
+  ],
+  "tuiScripts": [
+    "tui-code-snippet.min.js",
+    "tui-color-picker.min.js",
+    "tui-image-editor.min.js"
+  ],
+  "tuiStyles": [
+    "tui-color-picker.min.css",
+    "tui-image-editor.min.css"
+  ]
+}

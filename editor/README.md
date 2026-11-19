@@ -4,12 +4,19 @@ GrapesJS, its plugins and Luna's setup of them. **luna-studio builds it from
 npm** (`C:\OSPanel6\home\grapesjs\luna-studio`): `npm run bundle` (it also runs
 before `dev` and `build`) takes every file from `node_modules` into
 `public/editor` (git-ignored) and writes `manifest.json` with each file's
-package, version and SHA-256. Only `luna-theme.css` and this README live in the
-repository, in `editor/`. `npm run sync:dashboard` copies the bundle and
-`luna-editor.js` into luna-dashboard's `resources/editor`, which the dashboard
-serves at `/assets/editor/<file>` (embedded into the binary; no Node on the
-servers, no CDN at runtime); the dashboard's test checks the files against the
-manifest.
+package, version and SHA-256, the luna-studio version (`studio`) and the load
+order (`load`, from `src/editor/load.json`). Only `luna-theme.css` and this
+README live in the repository, in `editor/`.
+
+The published package carries the bundle (`dist/app/editor`) and
+`dist/editor/luna-editor.js`. **luna-dashboard takes it from npm**:
+`go run . editor:update [version]` there downloads luna-studio, checks the
+tarball against the registry's sha512 and every file against the manifest, and
+writes `resources/editor`, which the dashboard embeds and serves at
+`/assets/editor/<file>` (no Node on the servers, no CDN at runtime). The
+dashboard loads the scripts in the manifest's order, then `luna-editor.js`: a
+plugin added here needs no change there. `npm run sync:dashboard` does the same
+from a local build, to try a change before publishing.
 
 | File | From |
 |---|---|
@@ -27,7 +34,7 @@ manifest.
 | `grapesjs-pages.js` | our grapesjs-pages, published as npm `grapesjs-site-pages`, `dist/grapesjs-pages.umd.cjs` |
 | `grapesjs-scripts.js` | our blueprints plugin, npm `grapesjs-blueprints`, `dist/grapesjs-scripts.umd.cjs` (blueprintsjs bundled in) |
 | `luna-theme.css` | **ours**, `editor/luna-theme.css`: Luna's theme, light and dark after MUI (dark with `<html data-theme="dark">`, or `system` and a dark OS) (palette, Roboto, radii, elevations), sizes in px so the sidebar (320px) and the block tiles look the same on 4K; it also restyles the plugins written for the dark theme |
-| `luna-editor.js` | **ours**: luna-studio's `src/editor` (`npm run build:editor`): the plugins' settings, uploads to luna-files, the status texts. Only in the dashboard's copy (`sync:dashboard` adds it); luna-studio bundles the same code into its app |
+| `luna-editor.js` | **ours**: luna-studio's `src/editor` (`npm run build:editor`): the plugins' settings, uploads to luna-files, the status texts. Only in the dashboard's copy (`editor:update` adds it to the manifest); luna-studio bundles the same code into its app |
 
 The trailing `//# sourceMappingURL=` line is removed from each script (the
 maps are not shipped).
@@ -40,13 +47,15 @@ In luna-studio:
    `npm install`.
 2. `npm run bundle`. The files are taken as the table in
    `scripts/bundle.mjs` says (package, path, transform). A new file: a row
-   there; a new script also in `src/editor/bundle.ts` (`SCRIPTS`, the load
-   order) and in `editorScripts` in luna-dashboard's
-   `app/http/controllers/pages.go`. `node scripts/bundle.mjs --check` fails
-   when `public/editor` is not what the packages give.
-3. `npm test`, `npm run build`, try it (`npm start -- ./site`).
-4. `npm run sync:dashboard`, then in luna-dashboard
-   `go test ./tests/ -run Editor` and open an application's Pages.
+   there; a new script also in `src/editor/load.json` (the load order, for
+   the studio and the dashboard alike). `node scripts/bundle.mjs --check`
+   fails when `public/editor` is not what the packages give.
+3. `npm test`, `npm run build`, try it (`npm start -- ./site`); optionally
+   `npm run sync:dashboard` to try it in a local dashboard.
+4. Bump the version, `npm publish`.
+5. In luna-dashboard: `go run . editor:update` (or `editor:update 0.1.2`;
+   `--dry-run` shows what would change), `go test ./tests/ -run Editor`, then
+   build and deploy it as usual.
 
 Our plugins are tested against the pinned GrapesJS too (their suites pass on
 0.21.13 and 0.23.9).

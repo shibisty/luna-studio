@@ -1,45 +1,22 @@
+import load from './load.json';
+
 /**
  * The editor's files (public/editor, served at `<base>/<file>`) in load
- * order: GrapesJS, the official plugins, ours. grapesjs-pages comes before
- * grapesjs-storage, which then leaves the templates' designs to it.
- * luna-dashboard serves the same files (resources/editor) and lists them
- * in app/http/controllers/pages.go: keep both lists in step.
+ * order, from load.json: GrapesJS, the official plugins, ours.
+ * grapesjs-pages comes before grapesjs-storage, which then leaves the
+ * templates' designs to it; grapesjs-ruler after grapesjs-sidebar-tools
+ * (it follows its zoom and devices). `npm run bundle` writes the same
+ * lists into manifest.json as `load`, and luna-dashboard loads the bundle
+ * in that order (then its luna-editor.js).
  */
-export const SCRIPTS = [
-  'grapes.min.js',
-  'grapesjs-locale-ru.js',
-  'grapesjs-preset-webpage.js',
-  'grapesjs-blocks-basic.js',
-  'grapesjs-plugin-forms.js',
-  'grapesjs-navbar.js',
-  'grapesjs-tabs.js',
-  'grapesjs-component-countdown.js',
-  'grapesjs-custom-code.js',
-  'grapesjs-tooltip.js',
-  'grapesjs-typed.js',
-  'grapesjs-parser-postcss.js',
-  'grapesjs-style-gradient.js',
-  'grapesjs-style-bg.js',
-  'grapesjs-style-filter.js',
-  'grapesjs-plugin-export.js',
-  'grapesjs-tui-image-editor.js',
-  'grapesjs-cloud-assets.js',
-  'grapesjs-sidebar-tools.js',
-  // Rulers, crosshair and guides around the canvas (follows sidebar-tools' zoom and devices).
-  'grapesjs-ruler.js',
-  'grapesjs-context-menu.js',
-  'grapesjs-fonts.js',
-  'grapesjs-scripts.js',
-  'grapesjs-pages.js',
-  'grapesjs-storage.js',
-];
+export const SCRIPTS: string[] = load.scripts;
 
 /** Luna's theme last: over GrapesJS' dark look. */
-export const STYLES = ['grapes.min.css', 'grapick.min.css', 'luna-theme.css'];
+export const STYLES: string[] = load.styles;
 
 /** The TOAST UI image editor, loaded when it is first opened. */
-export const TUI_SCRIPTS = ['tui-code-snippet.min.js', 'tui-color-picker.min.js', 'tui-image-editor.min.js'];
-export const TUI_STYLES = ['tui-color-picker.min.css', 'tui-image-editor.min.css'];
+export const TUI_SCRIPTS: string[] = load.tuiScripts;
+export const TUI_STYLES: string[] = load.tuiStyles;
 
 /** Loads the styles and then the scripts one after another (they set globals). */
 export async function loadBundle(base: string, doc: Document = document): Promise<void> {
