@@ -2,7 +2,7 @@
   "mcpServers": {
     "luna-studio": {
       "command": "node",
-      "args": ["./bin/luna-studio-mcp.js"]
+      "args": ["./bin/lunastudio.js", "mcp"]
     }
   }
 }

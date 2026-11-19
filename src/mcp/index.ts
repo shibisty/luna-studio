@@ -39,7 +39,7 @@ const VERSION = typeof __STUDIO_VERSION__ === 'string' ? __STUDIO_VERSION__ : '0
 /** What Claude is told about the editor and how to work in it. */
 export const INSTRUCTIONS = `Tools of a running Luna Studio editor (GrapesJS with Luna's plugins). Changes appear in the user's editor at once and autosave; undo works.
 
-Start with editor_status. If it is not connected, ask the user to start the studio with \`luna-studio <folder> --mcp\` (or \`npm run dev\` with STUDIO_MCP=1) and open it in the browser.
+Start with editor_status. If it is not connected, ask the user to start the studio (\`npm start\` in a project made by \`lunastudio new\`, otherwise \`lunastudio start <folder> --mcp\`) and keep it open in the browser.
 
 A Luna site is a set of records, each a GrapesJS project of its own, and the editor shows one at a time (list_records, open_record):
 - site: the global CSS of the whole site (variables, typography, buttons, utilities). Put shared styles here.
@@ -168,7 +168,7 @@ export function createMcp(opts: McpOptions = {}): Mcp {
 
   let actualPort = port;
   const hint = () =>
-    `Start the studio with \`luna-studio <folder> --mcp\`${actualPort !== DEFAULT_PORT ? ` --mcp-port ${actualPort}` : ''} and open it in the browser; the editor connects to ws://${HOST}:${actualPort}.`;
+    `Start the studio (\`npm start\` in a lunastudio project, or \`lunastudio start <folder> --mcp${actualPort !== DEFAULT_PORT ? ` --mcp-port ${actualPort}` : ''}\`) and open it in the browser; the editor connects to ws://${HOST}:${actualPort}.`;
   const bridge = new Bridge(timeoutMs, log, hint);
 
   const wss = new WebSocketServer({

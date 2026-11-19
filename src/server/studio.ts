@@ -18,7 +18,7 @@ export interface StudioOptions {
   /** Debounce of folder writes, ms. */
   saveDelay?: number;
   /**
-   * Connect the editor to Luna Studio's MCP server (`luna-studio-mcp`):
+   * Connect the editor to Luna Studio's MCP server (`lunastudio mcp`):
    * `true` for its default port (GJS_MCP_PORT or 8765), or the port, and
    * the server's token (GJS_MCP_TOKEN) if it has one.
    */

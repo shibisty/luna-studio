@@ -49,7 +49,7 @@ const UI = {
     dark: 'Dark',
     mcp: 'MCP',
     mcpOn: 'Claude is connected (MCP server at %s)',
-    mcpOff: 'Waiting for the MCP server at %s: start Claude Code with luna-studio-mcp',
+    mcpOff: 'Waiting for the MCP server at %s: start Claude Code with lunastudio mcp',
   },
   ru: {
     local: 'Локальная папка',
@@ -76,7 +76,7 @@ const UI = {
     dark: 'Тёмная',
     mcp: 'MCP',
     mcpOn: 'Claude подключён (MCP-сервер %s)',
-    mcpOff: 'Ждём MCP-сервер %s: запустите Claude Code с luna-studio-mcp',
+    mcpOff: 'Ждём MCP-сервер %s: запустите Claude Code с lunastudio mcp',
   },
 };
 type UiWords = (typeof UI)['en'];

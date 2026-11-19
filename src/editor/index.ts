@@ -55,7 +55,7 @@ export interface MountConfig {
   plugins?: Array<(editor: AnyEditor) => void>;
   /** grapesjs-pages options added to the remote ones (e.g. `archiveName`). */
   pagesOptions?: Record<string, unknown>;
-  /** Connect to Luna Studio's MCP server (`luna-studio-mcp`), so Claude can edit the site. */
+  /** Connect to Luna Studio's MCP server (`lunastudio mcp`), so Claude can edit the site. */
   mcp?: McpBridgeOptions | null;
 }
 

@@ -1,9 +1,10 @@
 {
   "name": "luna-studio",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The Luna site editor (GrapesJS with Luna's plugins and settings) as a local app: edit a site kept as a folder at localhost, export it as an archive, or sign in to a Luna dashboard and edit an application's site directly. With an MCP server, so Claude can build the site in the editor.",
   "type": "module",
   "bin": {
+    "lunastudio": "bin/lunastudio.js",
     "luna-studio": "bin/luna-studio.js",
     "luna-studio-mcp": "bin/luna-studio-mcp.js"
   },
@@ -29,7 +30,7 @@
     "build:editor": "vite build --config vite.editor.config.ts",
     "build:app": "vite build",
     "build:server": "vite build --config vite.server.config.ts",
-    "start": "node bin/luna-studio.js",
+    "start": "node bin/lunastudio.js start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sync:dashboard": "node scripts/sync-dashboard.mjs",
@@ -88,7 +89,8 @@
     "cms",
     "page-builder",
     "vite",
-    "mcp"
+    "mcp",
+    "cli"
   ],
   "author": "Alexander Shibisty",
   "license": "MIT"

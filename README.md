@@ -18,19 +18,59 @@ theme), served by a small Vite server at `http://localhost:<port>`.
   modes (also in the dashboard's own editor).
 
 ```
-npx luna-studio ./my-site --open
+npm install -g luna-studio
+lunastudio new my-site        # a project: the site, npm scripts, Claude's MCP
+cd my-site
+npm start                     # the editor at http://localhost:5174
 ```
 
-```
-luna-studio [folder] [options]
+Or without a project: `npx luna-studio ./my-site --open`.
 
-  --port <n>         port (default 5174; the next free one if taken)
-  --host <name>      interface to listen on (default 127.0.0.1)
-  --dashboard <url>  the Luna dashboard to sign in to (default https://dashboard.shibisty.com)
-  --open             open the browser
-  --mcp              connect the editor to Claude's MCP server (see below)
-  --mcp-port <n>     its port (default 8765)
+## The command line
+
 ```
+lunastudio new <name> [options]    a new site project in the folder <name>
+lunastudio start [folder] [opts]   the editor (Ctrl+C stops it)
+lunastudio mcp [options]           Claude's MCP server on stdio (Claude Code starts it)
+lunastudio export [file.zip]       the site as an archive a Luna dashboard imports ("-": stdout)
+lunastudio import <file.zip>       replace the site's designs with an archive's (entries stay)
+lunastudio help [command]          the options of a command
+```
+
+`start` options: `--port <n>` (default 5174, the next free one if taken),
+`--host <name>` (default 127.0.0.1), `--dashboard <url>` (default
+https://dashboard.shibisty.com), `--open`, `--mcp`, `--mcp-port <n>`,
+`--no-mcp`. `new` options: `--title`, `--port`, `--mcp-port`,
+`--no-install`, `--git`, `--from <spec>` (the luna-studio dependency, e.g. a
+.tgz while trying a build). `export` and `import` take `--site <folder>`.
+`luna-studio` is the same command, and `luna-studio [folder]` still means
+`start`; `luna-studio-mcp` is `lunastudio mcp`.
+
+### Projects
+
+`lunastudio new my-site` writes:
+
+```
+my-site/
+  lunastudio.json   {"site": "site", "port": 5174, "mcp": true}
+  package.json      scripts start (lunastudio start --open), studio, mcp, export, import;
+                    luna-studio in devDependencies, so the scripts and Claude use the project's version
+  site/             the site (below): an empty home page
+  .mcp.json         Claude Code's MCP server: node node_modules/luna-studio/bin/lunastudio.js mcp
+  CLAUDE.md         how to work on the site with the MCP tools
+  README.md, .gitignore
+```
+
+and runs `npm install`. Every command looks for the nearest
+`lunastudio.json` upwards from the working directory and takes the site
+folder, the ports, `host`, `dashboard`, `open` and `mcp` (`true`, or
+`{"port", "token"}`) from it; options on the command line win. `start`
+and `mcp` read the same `mcp` port, so two projects with different ports
+run side by side.
+
+While a studio runs it keeps `site/.studio/server.json` (its pid and URL):
+a second `start` on the same folder and `import` refuse, `export` reads
+what has been saved.
 
 Node 20 or newer. The editor's files are in the package; nothing is fetched
 from CDNs except what a site itself uses (web fonts, typed.js).
@@ -80,20 +120,25 @@ The dashboard accepts callbacks only on your own machine
 Claude can build and change the site in the open editor: a page from a
 description, a section moved, buttons made rounder, a layout with a header
 and a footer, a mobile version checked on a screenshot. The studio comes
-with an MCP server for that, `luna-studio-mcp` (based on grapesjs-mcp):
+with an MCP server for that, `lunastudio mcp` (based on grapesjs-mcp):
 
 ```
-Claude Code ──MCP (stdio)──► luna-studio-mcp ──WebSocket (127.0.0.1:8765)──► the studio's editor
+Claude Code ──MCP (stdio)──► lunastudio mcp ──WebSocket (127.0.0.1:8765)──► the studio's editor
 ```
 
-1. Add the server to Claude Code. In this repository `.mcp.json` already
-   does (after `npm run build`); elsewhere:
+In a project made by `lunastudio new` it is all set: `npm start`, keep
+the tab open, run `claude` in the project folder. Otherwise:
+
+1. Add the server to Claude Code (in this repository `.mcp.json` already
+   does, after `npm run build`):
    ```
-   claude mcp add luna-studio -- node /path/to/luna-studio/bin/luna-studio-mcp.js
+   claude mcp add luna-studio -- lunastudio mcp
    ```
-   Claude Desktop: the same command and argument under `mcpServers` in
+   On Windows a global npm command is a `.cmd`, so there:
+   `claude mcp add luna-studio -- cmd /c lunastudio mcp`. Claude Desktop:
+   the same command and arguments under `mcpServers` in
    `claude_desktop_config.json`.
-2. Start the studio with `--mcp` and open it: `luna-studio ./my-site --mcp --open`
+2. Start the studio with `--mcp` and open it: `lunastudio start ./my-site --mcp --open`
    (in development `STUDIO_MCP=1 npm run dev`). The **MCP** chip in the bar
    turns green when Claude's server is there.
 3. Ask Claude: *"make a landing page for a coffee shop: hero, three cards,
