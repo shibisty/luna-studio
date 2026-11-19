@@ -43,7 +43,7 @@ export const BUTTON_TITLES: Record<string, string> = {
   'export-template': 'View code', undo: 'Undo', redo: 'Redo', 'gjs-open-import-webpage': 'Import HTML',
   'canvas-clear': 'Clear the canvas', 'gca-open-picker-btn': 'Insert from cloud',
   'open-sm': 'Styles', 'open-tm': 'Settings of the element', 'open-layers': 'Layers', 'open-blocks': 'Blocks',
-  'pages-manager': 'Pages', 'content-storage': 'Content',
+  'pages-manager': 'Pages', 'content-storage': 'Content', 'gjs-ruler': 'Rulers and guides',
 };
 
 /** Russian, as luna-dashboard's catalogue (app/locale/ru.go) has it. */
@@ -75,7 +75,7 @@ export const RU: Record<string, string> = {
   'Full screen': 'Во весь экран', 'View code': 'Показать код', Undo: 'Отменить', Redo: 'Повторить',
   'Import HTML': 'Импорт HTML', 'Clear the canvas': 'Очистить холст', 'Insert from cloud': 'Вставить из облака',
   Styles: 'Стили', 'Settings of the element': 'Настройки элемента', Layers: 'Слои', Blocks: 'Блоки',
-  Pages: 'Страницы', Content: 'Контент',
+  Pages: 'Страницы', Content: 'Контент', 'Rulers and guides': 'Линейки и направляющие',
 };
 
 /** A translator over a catalogue (English text → translation). */

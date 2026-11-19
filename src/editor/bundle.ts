@@ -25,6 +25,8 @@ export const SCRIPTS = [
   'grapesjs-tui-image-editor.js',
   'grapesjs-cloud-assets.js',
   'grapesjs-sidebar-tools.js',
+  // Rulers, crosshair and guides around the canvas (follows sidebar-tools' zoom and devices).
+  'grapesjs-ruler.js',
   'grapesjs-context-menu.js',
   'grapesjs-fonts.js',
   'grapesjs-scripts.js',

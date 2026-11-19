@@ -139,6 +139,10 @@ export function mount(cfg: MountConfig): AnyEditor {
   plugins.push(
     // Every view is a tab the user can dock left, right or at the bottom.
     (ed) => window.grapesjsSidebarTools(ed, { sizes: { right: 320 } }),
+    // Rulers, a crosshair and draggable guides (a button in the options panel;
+    // shown or hidden as the user left it). Skipped when a host page has not
+    // loaded the script (an older luna-dashboard).
+    (ed) => window.grapesjsRuler && window.grapesjsRuler.default(ed, {}),
     window.grapesjsContextMenu.default,
     // Web fonts; their catalogues through a proxy (the APIs send no CORS headers).
     (ed) => window.grapesjsFonts.default(ed, cfg.fonts ? { proxy: cfg.fonts } : {}),

@@ -99,6 +99,7 @@ const FILES = [
   ['dropbox-callback.html', 'grapesjs-cloud-assets', 'dist/dropbox-callback.html'],
   ['microsoft-callback.html', 'grapesjs-cloud-assets', 'dist/microsoft-callback.html'],
   ['grapesjs-sidebar-tools.js', 'grapesjs-sidebar-tools', 'dist/grapesjs-sidebar-tools.umd.cjs', js],
+  ['grapesjs-ruler.js', 'grapesjs-ruler', 'dist/grapesjs-ruler.umd.cjs', js],
   ['grapesjs-context-menu.js', 'grapesjs-context-menu', 'dist/grapesjs-context-menu.umd.cjs', js],
   ['grapesjs-fonts.js', 'grapesjs-fonts', 'dist/grapesjs-fonts.umd.cjs', js],
   ['grapesjs-scripts.js', 'grapesjs-blueprints', 'dist/grapesjs-scripts.umd.cjs', js, 'blueprintsjs bundled in'],

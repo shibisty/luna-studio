@@ -23,6 +23,7 @@ manifest.
 | `roboto-{latin,cyrillic}-{400,500}-normal.woff2` | npm `@fontsource/roboto@5.3.0` (`files/`), for the theme |
 | `grapesjs-cloud-assets.js`, `dropbox-callback.html`, `microsoft-callback.html` | npm `grapesjs-cloud-assets` (`dist/`; the sign-in popups return to the two pages) |
 | `grapesjs-sidebar-tools.js`, `grapesjs-context-menu.js`, `grapesjs-fonts.js`, `grapesjs-storage.js` | our plugins, npm, `dist/<name>.umd.cjs` |
+| `grapesjs-ruler.js` | npm `grapesjs-ruler`, `dist/grapesjs-ruler.umd.cjs`: rulers, a crosshair and guides around the canvas; its colours follow Luna's theme (`luna-theme.css`) |
 | `grapesjs-pages.js` | our grapesjs-pages, published as npm `grapesjs-site-pages`, `dist/grapesjs-pages.umd.cjs` |
 | `grapesjs-scripts.js` | our blueprints plugin, npm `grapesjs-blueprints`, `dist/grapesjs-scripts.umd.cjs` (blueprintsjs bundled in) |
 | `luna-theme.css` | **ours**, `editor/luna-theme.css`: Luna's theme, light and dark after MUI (dark with `<html data-theme="dark">`, or `system` and a dark OS) (palette, Roboto, radii, elevations), sizes in px so the sidebar (320px) and the block tiles look the same on 4K; it also restyles the plugins written for the dark theme |

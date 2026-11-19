@@ -369,3 +369,16 @@
 .gjs-st-zone { background: var(--luna-paper); }
 .gjs-st-tabs { border-bottom: 1px solid var(--luna-divider); }
 .gjs-st-drop { border-color: var(--luna-primary); background: var(--luna-primary-soft); color: var(--luna-primary); font: 500 12px/1.4 var(--luna-font); letter-spacing: .02em; }
+
+/* ---- grapesjs-ruler: rulers and the empty area in Luna's colours (both themes) ---- */
+.gjs-editor .gjs-cv-canvas.gjs-ruler-on {
+  --gjs-ruler-bg: var(--luna-bg);
+  --gjs-ruler-doc-bg: var(--luna-paper);
+  --gjs-ruler-tick: var(--luna-text-3);
+  --gjs-ruler-text: var(--luna-text-2);
+  --gjs-ruler-border: var(--luna-divider);
+  --gjs-ruler-guide: var(--luna-primary);
+  --gjs-ruler-grid: var(--luna-hover);
+  --gjs-ruler-grid-major: var(--luna-divider);
+  --gjs-ruler-frame: var(--luna-border);
+}
