@@ -17,6 +17,20 @@ export interface StudioOptions {
   fetch?: typeof fetch;
   /** Debounce of folder writes, ms. */
   saveDelay?: number;
+  /**
+   * Connect the editor to Luna Studio's MCP server (`luna-studio-mcp`):
+   * `true` for its default port (GJS_MCP_PORT or 8765), or the port, and
+   * the server's token (GJS_MCP_TOKEN) if it has one.
+   */
+  mcp?: boolean | { port?: number; token?: string } | null;
+}
+
+/** The editor's MCP settings for the page, or null. */
+export function mcpConfig(o: StudioOptions['mcp']): { url: string; token: string } | null {
+  if (!o) return null;
+  const c = o === true ? {} : o;
+  const port = c.port || Number(process.env.GJS_MCP_PORT) || 8765;
+  return { url: `ws://127.0.0.1:${port}`, token: c.token ?? process.env.GJS_MCP_TOKEN ?? '' };
 }
 
 export const DEFAULT_DASHBOARD = 'https://dashboard.shibisty.com';
@@ -40,6 +54,7 @@ export function createStudio(opts: StudioOptions): Studio {
   const dashboard = opts.dashboard ? normalizeDashboard(opts.dashboard) : DEFAULT_DASHBOARD;
   const doFetch = opts.fetch || globalThis.fetch.bind(globalThis);
   const ready = store.load();
+  const mcp = mcpConfig(opts.mcp);
 
   const origin = (req: Req): string => `http://${req.headers.host}`;
 
@@ -60,6 +75,7 @@ export function createStudio(opts: StudioOptions): Studio {
         dashboard,
         accounts,
         current: cur?.url || null,
+        mcp,
       });
     }
     if (p === '/studio/api/sign-in' && method === 'POST') {

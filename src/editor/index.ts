@@ -9,11 +9,14 @@
  */
 import { localized, RU, WORDS, type Words } from './words';
 import { uploader, type FilesConfig } from './uploads';
+import { mcpBridge, type McpBridgeOptions } from './mcpBridge';
 
 export { loadBundle, SCRIPTS, STYLES, TUI_SCRIPTS, TUI_STYLES } from './bundle';
 export { WORDS, RU, BLOCK_LABELS, BUTTON_TITLES, localized } from './words';
 export type { Words } from './words';
 export type { FilesConfig } from './uploads';
+export { mcpBridge, DEFAULT_MCP_URL } from './mcpBridge';
+export type { McpBridgeOptions } from './mcpBridge';
 
 type AnyEditor = any;
 declare const window: Window & Record<string, any>;
@@ -52,6 +55,8 @@ export interface MountConfig {
   plugins?: Array<(editor: AnyEditor) => void>;
   /** grapesjs-pages options added to the remote ones (e.g. `archiveName`). */
   pagesOptions?: Record<string, unknown>;
+  /** Connect to Luna Studio's MCP server (`luna-studio-mcp`), so Claude can edit the site. */
+  mcp?: McpBridgeOptions | null;
 }
 
 /** The record being edited, for a preview: an entry or a page; null with a reason. */
@@ -155,6 +160,7 @@ export function mount(cfg: MountConfig): AnyEditor {
         remote: { url: cfg.pagesApi, headers, markup: scriptsMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
       }),
     (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers } }),
+    ...(cfg.mcp ? [mcpBridge(cfg.mcp)] : []),
     ...(cfg.plugins || [])
   );
 

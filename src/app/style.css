@@ -30,5 +30,9 @@ body { display: flex; flex-direction: column; font: 14px/1.5 var(--luna-font, Ro
 .luna-bar .toggle a[aria-current="true"] { background: rgba(255,255,255,.24); opacity: 1; }
 .luna-bar .toggle a:hover { opacity: 1; }
 .luna-bar .toggle svg { width: 16px; height: 16px; fill: currentColor; }
+.luna-bar .mcp { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 inherit; letter-spacing: .04em; opacity: .8; white-space: nowrap; cursor: default; }
+.luna-bar .mcp::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #ef9a9a; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+.luna-bar .mcp.on { opacity: 1; }
+.luna-bar .mcp.on::before { background: #69f0ae; }
 #gjs { flex: 1; min-height: 0; }
 .fatal { position: fixed; inset: 60px 20px auto; padding: 16px; background: #fdeded; color: #5f2120; border-radius: 4px; white-space: pre-wrap; }
