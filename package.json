@@ -1,15 +1,17 @@
 {
   "name": "luna-studio",
   "version": "0.1.0",
-  "description": "The Luna site editor (GrapesJS with Luna's plugins and settings) as a local app: edit a site kept as a folder at localhost, export it as an archive, or sign in to a Luna dashboard and edit an application's site directly.",
+  "description": "The Luna site editor (GrapesJS with Luna's plugins and settings) as a local app: edit a site kept as a folder at localhost, export it as an archive, or sign in to a Luna dashboard and edit an application's site directly. With an MCP server, so Claude can build the site in the editor.",
   "type": "module",
   "bin": {
-    "luna-studio": "bin/luna-studio.js"
+    "luna-studio": "bin/luna-studio.js",
+    "luna-studio-mcp": "bin/luna-studio-mcp.js"
   },
   "main": "./dist/server/index.js",
   "exports": {
     ".": "./dist/server/index.js",
     "./editor": "./dist/editor/luna-editor.js",
+    "./mcp": "./dist/server/mcp.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -36,11 +38,15 @@
     "predev": "node scripts/bundle.mjs"
   },
   "dependencies": {
-    "vite": "5.4.11"
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "vite": "5.4.11",
+    "ws": "^8.23.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@fontsource/roboto": "5.3.0",
     "@types/node": "^22.10.0",
+    "@types/ws": "^8.18.2",
     "fflate": "^0.8.3",
     "font-awesome": "4.7.0",
     "grapesjs": "0.23.9",
@@ -67,6 +73,7 @@
     "grapesjs-tui-image-editor": "1.0.2",
     "grapesjs-typed": "2.0.1",
     "grapick": "0.1.13",
+    "html-to-image": "1.11.13",
     "tui-code-snippet": "1.5.2",
     "tui-color-picker": "2.2.7",
     "tui-image-editor": "3.15.2",
@@ -79,7 +86,8 @@
     "site-editor",
     "cms",
     "page-builder",
-    "vite"
+    "vite",
+    "mcp"
   ],
   "author": "Alexander Shibisty",
   "license": "MIT"

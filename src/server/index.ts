@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { createStudio, studioPlugin, type StudioOptions } from './studio';
 
-export { createStudio, studioPlugin, DEFAULT_DASHBOARD, STUDIO_HEADER } from './studio';
+export { createStudio, studioPlugin, mcpConfig, DEFAULT_DASHBOARD, STUDIO_HEADER } from './studio';
 export type { Studio, StudioOptions } from './studio';
 export { SiteStore } from './siteStore';
 export { Remote, normalizeDashboard, CLIENT_ID } from './remote';

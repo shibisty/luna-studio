@@ -28,6 +28,8 @@ luna-studio [folder] [options]
   --host <name>      interface to listen on (default 127.0.0.1)
   --dashboard <url>  the Luna dashboard to sign in to (default https://dashboard.shibisty.com)
   --open             open the browser
+  --mcp              connect the editor to Claude's MCP server (see below)
+  --mcp-port <n>     its port (default 8765)
 ```
 
 Node 20 or newer. The editor's files are in the package; nothing is fetched
@@ -73,6 +75,60 @@ The dashboard accepts callbacks only on your own machine
 (`http://localhost:<port>`, `127.0.0.1`, `[::1]`) or the desktop app's scheme
 `luna-studio:` (for an Electron build).
 
+## Claude (MCP)
+
+Claude can build and change the site in the open editor: a page from a
+description, a section moved, buttons made rounder, a layout with a header
+and a footer, a mobile version checked on a screenshot. The studio comes
+with an MCP server for that, `luna-studio-mcp` (based on grapesjs-mcp):
+
+```
+Claude Code ──MCP (stdio)──► luna-studio-mcp ──WebSocket (127.0.0.1:8765)──► the studio's editor
+```
+
+1. Add the server to Claude Code. In this repository `.mcp.json` already
+   does (after `npm run build`); elsewhere:
+   ```
+   claude mcp add luna-studio -- node /path/to/luna-studio/bin/luna-studio-mcp.js
+   ```
+   Claude Desktop: the same command and argument under `mcpServers` in
+   `claude_desktop_config.json`.
+2. Start the studio with `--mcp` and open it: `luna-studio ./my-site --mcp --open`
+   (in development `STUDIO_MCP=1 npm run dev`). The **MCP** chip in the bar
+   turns green when Claude's server is there.
+3. Ask Claude: *"make a landing page for a coffee shop: hero, three cards,
+   a footer"*, *"put the prices above the reviews"*, *"check it on mobile"*.
+
+Changes go through the GrapesJS and grapesjs-pages APIs in the page: they
+show at once, autosave like changes by hand, and Ctrl+Z undoes them. It
+works the same on a local folder and on a dashboard's application.
+
+The tools: `editor_status`; the records: `list_records`, `open_record`,
+`create_record`, `update_record`, `publish`; the open record: `get_page`,
+`get_tree`, `add_html`, `update_component`, `remove_component`,
+`move_component`, `set_page`, `add_css`, `select_component`, `get_selected`,
+`list_blocks`, `add_block`, `set_device`, `get_project_data`,
+`load_project_data`, `undo`, `redo`, `screenshot` (desktop, tablet, mobile).
+The server also tells Claude how a Luna site is built (the site's CSS,
+layouts with `<page-slot>`, pages). There is no tool that runs arbitrary
+JavaScript.
+
+| | Server (environment / option) | Studio |
+| --- | --- | --- |
+| port | `GJS_MCP_PORT`, `--port` (default 8765) | `--mcp-port <n>`, `STUDIO_MCP=<n>` in dev |
+| token | `GJS_MCP_TOKEN`, `--token` | `GJS_MCP_TOKEN` |
+| page origins | `GJS_MCP_ORIGINS` (default localhost, 127.0.0.1, [::1], any port; `*` any) | |
+| answer timeout | `GJS_MCP_TIMEOUT_MS` (default 20000) | |
+
+The WebSocket listens on 127.0.0.1 only and checks the page's `Origin`.
+One editor tab at a time is connected (a newer one takes over), and one
+server per port: give two Claude sessions different ports. The editor's
+canvas shows the open record alone (a page without its layout and the
+site's CSS); the preview shows them together.
+
+In other pages the bridge is `LunaEditor.mount({ …, mcp: { url, token, onStatus } })`
+or the plugin `mcpBridge(options)` from `src/editor/mcpBridge.ts`.
+
 ## Embedding and the desktop app
 
 The server is a library too:
@@ -116,7 +172,7 @@ without a CORS preflight (never answered) and DNS rebinding gets 403.
 ```
 npm install
 npm run dev                 # Vite with hot reload; the site in ./site (STUDIO_DIR), STUDIO_DASHBOARD
-npm test                    # vitest: the folder store, the API, the sign-in
+npm test                    # vitest: the folder store, the API, the sign-in, the MCP server
 npm run build               # the bundle, dist/editor, dist/app, dist/server
 npm run bundle              # only the editor bundle: public/editor from node_modules
 npm run sync:dashboard [path]   # the bundle + luna-editor.js into luna-dashboard's resources/editor

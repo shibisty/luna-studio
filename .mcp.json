@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "luna-studio": {
+      "command": "node",
+      "args": ["./bin/luna-studio-mcp.js"]
+    }
+  }
+}

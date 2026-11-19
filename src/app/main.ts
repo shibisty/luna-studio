@@ -20,6 +20,7 @@ interface State {
   dashboard: string;
   accounts: Array<{ url: string; developer: { name?: string; email?: string } }>;
   current: string | null;
+  mcp: { url: string; token: string } | null;
 }
 
 const UI = {
@@ -46,6 +47,9 @@ const UI = {
     light: 'Light',
     system: 'As in the system',
     dark: 'Dark',
+    mcp: 'MCP',
+    mcpOn: 'Claude is connected (MCP server at %s)',
+    mcpOff: 'Waiting for the MCP server at %s: start Claude Code with luna-studio-mcp',
   },
   ru: {
     local: 'Локальная папка',
@@ -70,6 +74,9 @@ const UI = {
     light: 'Светлая',
     system: 'Как в системе',
     dark: 'Тёмная',
+    mcp: 'MCP',
+    mcpOn: 'Claude подключён (MCP-сервер %s)',
+    mcpOff: 'Ждём MCP-сервер %s: запустите Claude Code с luna-studio-mcp',
   },
 };
 type UiWords = (typeof UI)['en'];
@@ -267,11 +274,20 @@ async function main(): Promise<void> {
     );
   }
 
+  // Claude's connection (luna-studio --mcp): a chip, green when the MCP server is there.
+  const mcpChip = state.mcp ? el('span', { class: 'mcp', role: 'status', 'aria-live': 'polite' }, w.mcp) : null;
+  const mcpStatus = (on: boolean) => {
+    if (!mcpChip || !state.mcp) return;
+    mcpChip.classList.toggle('on', on);
+    mcpChip.title = fmt(on ? w.mcpOn : w.mcpOff, state.mcp.url);
+  };
+
   bar.append(
     el('span', { class: 'title' }, 'Luna Studio'),
     picker,
     el('span', { class: 'spacer' }),
     status,
+    ...(mcpChip ? [mcpChip] : []),
     preview,
     exportBtn,
     importBtn,
@@ -306,6 +322,7 @@ async function main(): Promise<void> {
     callbacks: { dropbox: '/editor/dropbox-callback.html', microsoft: '/editor/microsoft-callback.html' },
     status: say,
     pagesOptions: { archiveName: () => `${(isRemote ? remoteName : state.site) || 'site'}-${new Date().toISOString().slice(0, 10)}` },
+    mcp: state.mcp ? { url: state.mcp.url, token: state.mcp.token, onStatus: mcpStatus } : null,
   });
 }
 
