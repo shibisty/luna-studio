@@ -3,7 +3,8 @@
  * luna-dashboard uses, as one function. The dashboard's editor page and
  * luna-studio both call `mount()`; the plugins' scripts must be loaded
  * first (`loadBundle`, or the dashboard's <script> tags), as they set the
- * globals read here (`grapesjs`, `grapesjsPages`, `grapesjsStorage`…).
+ * globals read here (`grapesjs`, `grapesjsPages`, `grapesjsStorage`,
+ * `grapesjsForms`, `grapesjsDarkReader`…).
  *
  * Built as `luna-editor.js` (global `LunaEditor`) for the dashboard.
  */
@@ -21,6 +22,15 @@ export type { McpBridgeOptions } from './mcpBridge';
 type AnyEditor = any;
 declare const window: Window & Record<string, any>;
 
+/** grapesjs-forms' backend: luna-forms through the dashboard, or the studio's local API. */
+export interface FormsConfig {
+  /** Base URL of the forms API (grapesjs-forms' `rest.url`; `/forms…` follows). */
+  api: string;
+  /** Where the published site posts (`<submitUrl>/forms/<id>/submissions`); default `api`. */
+  submitUrl?: string | null;
+  headers?: () => Record<string, string>;
+}
+
 export interface MountConfig {
   /** Where the editor goes (`#gjs`). */
   container: string | HTMLElement;
@@ -36,6 +46,10 @@ export interface MountConfig {
   files?: FilesConfig | null;
   /** The editor's language: `en` or one GrapesJS has a locale for (`ru`…). */
   lang?: string;
+  /** grapesjs-forms' backend; without it forms stay in this browser (IndexedDB). */
+  forms?: FormsConfig | null;
+  /** darkreader.js for grapesjs-darkreader's preview (the bundle's copy; jsDelivr otherwise). */
+  darkreader?: string;
   /** Base URL of the fonts catalogues proxy (luna-dashboard's `/editor/fonts`). */
   fonts?: string;
   /** Font Awesome 4.7's CSS (GrapesJS fetches it from cdnjs otherwise). */
@@ -90,6 +104,34 @@ async function scriptsMarkup(out: { html: string; css: string; kind: string }): 
   }
   if (!tags.length) return;
   return { html: out.html + '\n' + tags.join('\n'), css: out.css };
+}
+
+/**
+ * grapesjs-darkreader's settings for the published page, as data:
+ * `<script type="application/json" data-luna-darkreader>`. luna-pages keeps
+ * that element (it runs nothing) and adds its own copy of the theme
+ * runtime, which reads it; the plugin's own runtime script would need the
+ * site's custom code.
+ */
+export const DARKREADER_ATTR = 'data-luna-darkreader';
+
+function themeMarkup(out: { html: string; css: string; kind: string }): { html: string; css: string } | void {
+  const dr = window.editor && window.editor.DarkReader;
+  if (!dr || out.kind === 'site') return;
+  const settings = dr.getSettings();
+  if (!settings || settings.enabled === false) return;
+  const json = JSON.stringify(dr.getRuntimeConfig()).replace(/</g, '\\u003c');
+  return { html: out.html + '\n<script type="application/json" ' + DARKREADER_ATTR + '>' + json + '<\/script>', css: out.css };
+}
+
+/** The publish hooks of the open record, one after another. */
+async function publishMarkup(out: { html: string; css: string; kind: string }): Promise<{ html: string; css: string } | void> {
+  let cur = { html: out.html, css: out.css };
+  for (const hook of [scriptsMarkup, themeMarkup]) {
+    const r = await hook({ ...cur, kind: out.kind });
+    if (r) cur = r;
+  }
+  if (cur.html !== out.html || cur.css !== out.css) return cur;
 }
 
 /** Starts the editor; resolves to the GrapesJS editor (also `window.editor`). */
@@ -153,11 +195,24 @@ export function mount(cfg: MountConfig): AnyEditor {
     (ed) => window.grapesjsFonts.default(ed, cfg.fonts ? { proxy: cfg.fonts } : {}),
     // Blueprints: page behaviour as node graphs, compiled to JavaScript.
     window.grapesjsScripts.default,
+    // Forms with a backend: luna-forms keeps them and what visitors send
+    // (luna-pages points every published form at it and adds its script).
+    (ed) =>
+      window.grapesjsForms &&
+      window.grapesjsForms.default(ed, {
+        rest: cfg.forms ? { url: cfg.forms.api, headers: cfg.forms.headers || headers } : null,
+        submitUrl: (cfg.forms && cfg.forms.submitUrl) || null,
+      }),
+    // A generated dark (or light) theme of the site and its toggle; on
+    // published pages luna-pages runs the theme (see themeMarkup).
+    (ed) =>
+      window.grapesjsDarkReader &&
+      window.grapesjsDarkReader.default(ed, { ...(cfg.darkreader ? { src: cfg.darkreader } : {}), exportRuntime: false }),
     // grapesjs-pages first: grapesjs-storage then leaves the templates' designs to it.
     (ed) =>
       pages(ed, {
         ...(cfg.pagesOptions || {}),
-        remote: { url: cfg.pagesApi, headers, markup: scriptsMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
+        remote: { url: cfg.pagesApi, headers, markup: publishMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
       }),
     (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers } }),
     ...(cfg.mcp ? [mcpBridge(cfg.mcp)] : []),

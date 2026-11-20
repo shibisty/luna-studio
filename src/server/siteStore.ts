@@ -138,6 +138,8 @@ export class SiteStore {
       const arc = readArchiveFiles(files);
       this.edited = arc.edited;
       for (const a of arc.records) {
+        // Linked components (grapesjs-site-pages 2.10): the editor keeps them in its cache (no /components here).
+        if (a.kind === 'component') continue;
         const st = state.records[a.id] || { version: 1, created_at: t, updated_at: t };
         const rec: Rec = { kind: a.kind, id: a.id, name: a.name, version: st.version, created_at: st.created_at, updated_at: st.updated_at, data: a.data };
         if (a.kind === 'page') {
@@ -532,6 +534,7 @@ export class SiteStore {
     const t = now();
     for (const [id, r] of [...old]) if (!(r.kind === 'page' && r.template_id)) old.delete(id);
     for (const a of arc.records) {
+      if (a.kind === 'component') continue;
       const rec: Rec = { kind: a.kind, id: a.kind === 'site' ? SITE_ID : a.id.toLowerCase(), name: a.name, version: 1, created_at: t, updated_at: t, data: a.data ?? null };
       if (a.kind === 'page') {
         rec.slug = a.slug ? normalizeSlug(a.slug) : normalizeSlug(a.name);

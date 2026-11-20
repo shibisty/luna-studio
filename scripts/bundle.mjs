@@ -95,16 +95,23 @@ const FILES = [
   ['roboto-cyrillic-400-normal.woff2', '@fontsource/roboto', 'files/roboto-cyrillic-400-normal.woff2'],
   ['roboto-cyrillic-500-normal.woff2', '@fontsource/roboto', 'files/roboto-cyrillic-500-normal.woff2'],
   // Ours, from npm.
-  ['grapesjs-cloud-assets.js', 'grapesjs-cloud-assets', 'dist/grapesjs-cloud-assets.umd.cjs', js],
+  ['grapesjs-cloud-assets.js', 'grapesjs-cloud-assets', 'dist/grapesjs-cloud-assets.umd.js', js],
   ['dropbox-callback.html', 'grapesjs-cloud-assets', 'dist/dropbox-callback.html'],
   ['microsoft-callback.html', 'grapesjs-cloud-assets', 'dist/microsoft-callback.html'],
-  ['grapesjs-sidebar-tools.js', 'grapesjs-sidebar-tools', 'dist/grapesjs-sidebar-tools.umd.cjs', js],
-  ['grapesjs-ruler.js', 'grapesjs-ruler', 'dist/grapesjs-ruler.umd.cjs', js],
-  ['grapesjs-context-menu.js', 'grapesjs-context-menu', 'dist/grapesjs-context-menu.umd.cjs', js],
-  ['grapesjs-fonts.js', 'grapesjs-fonts', 'dist/grapesjs-fonts.umd.cjs', js],
-  ['grapesjs-scripts.js', 'grapesjs-blueprints', 'dist/grapesjs-scripts.umd.cjs', js, 'blueprintsjs bundled in'],
-  ['grapesjs-pages.js', 'grapesjs-site-pages', 'dist/grapesjs-pages.umd.cjs', js],
+  ['box-callback.html', 'grapesjs-cloud-assets', 'dist/box-callback.html'],
+  ['grapesjs-sidebar-tools.js', 'grapesjs-sidebar-tools', 'dist/grapesjs-sidebar-tools.umd.js', js],
+  ['grapesjs-ruler.js', 'grapesjs-ruler', 'dist/grapesjs-ruler.umd.js', js],
+  ['grapesjs-context-menu.js', 'grapesjs-context-menu', 'dist/grapesjs-context-menu.umd.js', js],
+  ['grapesjs-fonts.js', 'grapesjs-fonts', 'dist/grapesjs-fonts.umd.js', js],
+  ['grapesjs-scripts.js', 'grapesjs-blueprints', 'dist/grapesjs-scripts.umd.js', js, 'blueprintsjs bundled in'],
+  ['grapesjs-pages.js', 'grapesjs-site-pages', 'dist/grapesjs-pages.umd.js', js],
+  // 0.2 until luna-pages has 1.x's content model (field groups, data per page): 0.x ships .umd.cjs only.
   ['grapesjs-storage.js', 'grapesjs-storage', 'dist/grapesjs-storage.umd.cjs', js],
+  ['grapesjs-forms.js', 'grapesjs-forms', 'dist/grapesjs-forms.umd.js', js],
+  ['grapesjs-forms-runtime.js', 'grapesjs-forms', 'dist/runtime.iife.js', js, 'the published forms\' script (window.gjsfRuntime)'],
+  ['grapesjs-darkreader.js', 'grapesjs-darkreader', 'dist/grapesjs-darkreader.umd.js', js],
+  // Dark Reader itself, for the canvas preview (grapesjs-darkreader loads it from jsDelivr otherwise).
+  ['darkreader.js', 'darkreader', 'darkreader.js', js],
 ];
 
 /** Ours, kept in this repository (editor/). */

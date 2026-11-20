@@ -2,8 +2,8 @@
 
 The Luna site editor on your computer: GrapesJS with every plugin and
 setting luna-dashboard's editor has (grapesjs-pages, grapesjs-storage,
-grapesjs-fonts, grapesjs-scripts, sidebar-tools, the official plugins, Luna's
-theme), served by a small Vite server at `http://localhost:<port>`.
+grapesjs-forms, grapesjs-darkreader, grapesjs-fonts, grapesjs-scripts,
+sidebar-tools, the official plugins, Luna's theme), served by a small Vite server at `http://localhost:<port>`.
 
 - **Local folder.** The site lives in a folder on disk. The folder *is* a
   grapesjs-pages site archive (see below), so you can zip it, keep it in git,
@@ -84,7 +84,9 @@ my-site/
   layouts/<name>/          project.json, body.html, style.css
   templates/<name>/        project.json, body.html, style.css, index.html, fields.json
   pages/<address>/         project.json, body.html, style.css, index.html   (/ → pages/index)
-  .studio/                 versions, publish state, entries of templates, revisions (the studio's own)
+  forms/<id>.json          the forms of grapesjs-forms, as the editor writes them
+  .studio/                 versions, publish state, entries of templates, revisions, the forms' versions,
+                           what the editor's form preview sent (submissions/, uploads/) (the studio's own)
 ```
 
 `project.json` is the GrapesJS project and is what the editor loads.
@@ -98,6 +100,19 @@ lost) and the record gets a new version.
 
 Entries of templates and their values are content, not design: they stay in
 `.studio/entries.json` and are not part of the archive.
+
+**Forms** (grapesjs-forms: the *Forms* button, the *Forms* blocks) are kept in
+`forms/` by the studio's own copy of luna-forms' API: versions, and the
+submissions the editor's *Preview* tab sends, checked by the plugin's rules
+(`.studio/submissions/<id>.json`, files in `.studio/uploads/`). *Upload the
+folder here* also writes the folder's forms into the application's
+luna-forms (same ids, so the pages' forms keep working; luna-pages points
+every published form at luna-forms); *Save to the folder* brings them back.
+
+The **theme** (grapesjs-darkreader: the *Theme* tab, the *Theme toggle* block)
+is published as data (`<script type="application/json" data-luna-darkreader>`):
+luna-pages adds its theme script to such pages, so the site needs no custom
+code for it. Dark Reader for the canvas preview comes from the bundle.
 
 ## Signing in
 
@@ -204,7 +219,8 @@ after the bundle's scripts. luna-dashboard serves the same file.
 | `POST api/import` (a ZIP) | replace the folder's designs (entries stay) |
 | `POST api/reload` | read the folder again |
 | `local/editor/…`, `local/content/…` | the folder as luna-pages offers it: grapesjs-pages' contract v2 and grapesjs-storage's content API |
-| `remote/<app>/pages/…`, `remote/<app>/files/…` | the dashboard's editor and files APIs, with the token |
+| `local/forms/…` | the folder's forms: grapesjs-forms' REST contract (`/forms`, `/forms/{id}`, `/forms/{id}/submissions`), `/info` |
+| `remote/<app>/pages/…`, `remote/<app>/files/…`, `remote/<app>/forms/…` | the dashboard's editor, files and forms APIs, with the token |
 | `GET preview/<id>` | a published page in its layout (sandboxed) |
 | `GET fonts/…` | the font catalogues (through the dashboard's public proxy) |
 
@@ -225,8 +241,10 @@ npm run sync:dashboard [path]   # try a local build in luna-dashboard's resource
 
 Every editor file comes from npm: GrapesJS, the official plugins and ours
 (`grapesjs-site-pages` — grapesjs-pages' npm name —, `grapesjs-storage`,
-`grapesjs-blueprints`, `grapesjs-fonts`, `grapesjs-sidebar-tools`,
-`grapesjs-context-menu`, `grapesjs-cloud-assets`), pinned in `devDependencies`.
+`grapesjs-forms`, `grapesjs-darkreader`, `grapesjs-blueprints`, `grapesjs-fonts`,
+`grapesjs-sidebar-tools`, `grapesjs-context-menu`, `grapesjs-ruler`,
+`grapesjs-cloud-assets`), pinned in `devDependencies`. grapesjs-storage stays
+at 0.2 until luna-pages has 1.x's content model (field groups, data per page).
 `npm run bundle` puts them in `public/editor` (git-ignored) with a
 `manifest.json` of versions and hashes; see [editor/README.md](editor/README.md).
 The server bundles `grapesjs-site-pages/archive` (the archive format). The

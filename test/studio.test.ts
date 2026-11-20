@@ -295,3 +295,62 @@ it('keeps only its own files in the folder', async () => {
   const top = (await readdir(path.join(dir, 'site'))).sort();
   expect(top).toEqual(['.studio', 'manifest.json', 'pages', 'site']);
 });
+
+describe('the forms over a folder (grapesjs-forms REST contract)', () => {
+  const form = { name: 'Contact', fields: [{ id: 'f1', type: 'email', name: 'email', label: 'Email', required: true }, { id: 'f2', type: 'file', name: 'cv' }] };
+
+  it('keeps forms in forms/ with versions, and refuses stale writes', async () => {
+    let r = await call('PUT', '/studio/local/forms/forms/contact', form);
+    expect(r.status).toBe(201);
+    expect(r.headers.get('etag')).toBe('"1"');
+    expect(JSON.parse(await readFile(path.join(dir, 'site/forms/contact.json'), 'utf8'))).toEqual(form);
+    r = await call('PUT', '/studio/local/forms/forms/contact', { ...form, name: 'Contact us' }, { 'If-Match': '"7"' });
+    expect(r.status).toBe(412);
+    r = await call('PUT', '/studio/local/forms/forms/contact', { ...form, name: 'Contact us' }, { 'If-Match': '"1"' });
+    expect(r.status).toBe(200);
+    expect(r.json.version).toBe(2);
+    expect((await call('GET', '/studio/local/forms/forms')).json.items.map((f: any) => f.name)).toEqual(['Contact us']);
+    expect((await call('PUT', '/studio/local/forms/forms/bad id', form)).status).toBe(422);
+
+    // A new studio on the same folder reads them back, with their versions.
+    const again = createStudio({ dir: path.join(dir, 'site'), credentials: path.join(dir, 'creds.json') });
+    await again.forms.load();
+    expect(again.forms.get('contact').version).toBe(2);
+  });
+
+  it('checks submissions by the plugin\'s rules and keeps them in .studio', async () => {
+    await call('PUT', '/studio/local/forms/forms/contact', form);
+    let r = await call('POST', '/studio/local/forms/forms/contact/submissions', { data: { email: 'nope' }, meta: { url: 'http://x/' } });
+    expect(r.status).toBe(422);
+    expect(r.json.errors.email).toBeTruthy();
+    r = await call('POST', '/studio/local/forms/forms/contact/submissions', { data: { email: 'a@b.test', _gjsf_hp: 'bot' } });
+    expect(r.status).toBe(201);
+    expect((await call('GET', '/studio/local/forms/forms/contact/submissions')).json.total).toBe(0);
+
+    // Multipart with a file.
+    const fd = new FormData();
+    fd.append('email', 'a@b.test');
+    fd.append('cv', new Blob(['%PDF'], { type: 'application/pdf' }), 'cv.pdf');
+    fd.append('_meta', JSON.stringify({ url: 'http://x/', page_id: 'p1', secret: 'no' }));
+    const up = await fetch(base + '/studio/local/forms/forms/contact/submissions', { method: 'POST', headers: { 'X-Luna-Studio': '1' }, body: fd });
+    expect(up.status).toBe(201);
+    const sid = (await up.json()).id;
+    const list = (await call('GET', '/studio/local/forms/forms/contact/submissions')).json;
+    expect(list.total).toBe(1);
+    expect(list.items[0].data).toEqual({ email: 'a@b.test', cv: [{ name: 'cv.pdf', size: 4, type: 'application/pdf' }] });
+    expect(list.items[0].meta).toEqual({ url: 'http://x/', page_id: 'p1', preview: true });
+    expect(await readFile(path.join(dir, 'site/.studio/uploads/contact', sid, 'cv.pdf'), 'utf8')).toBe('%PDF');
+
+    expect((await call('DELETE', `/studio/local/forms/forms/contact/submissions/${sid}`)).status).toBe(204);
+    expect(existsSync(path.join(dir, 'site/.studio/uploads/contact', sid))).toBe(false);
+    expect((await call('DELETE', '/studio/local/forms/forms/contact')).status).toBe(204);
+    expect(existsSync(path.join(dir, 'site/forms/contact.json'))).toBe(false);
+    expect((await call('GET', '/studio/local/forms/forms/contact')).status).toBe(404);
+  });
+
+  it('forwards the forms API of an application to the dashboard', async () => {
+    await writeFile(path.join(dir, 'creds.json'), JSON.stringify({ current: 'https://dash.test', accounts: [{ url: 'https://dash.test', token: 'lst_secret', developer: {} }] }));
+    await call('GET', '/studio/remote/app1/forms/forms');
+    expect(dashboardCalls.at(-1)!.url).toBe('https://dash.test/studio/v1/apps/app1/forms/api/forms');
+  });
+});

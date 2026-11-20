@@ -3,6 +3,7 @@ import type { Plugin } from 'vite';
 import { readArchive } from 'grapesjs-site-pages/archive';
 import { fail, HttpError, json, pathOf, queryOf, readBody, readJson, type Next, type Req, type Res } from './http';
 import { contentApi, editorApi, previewHtml } from './localApi';
+import { FormsStore, formsApi } from './formsStore';
 import { normalizeDashboard, Remote } from './remote';
 import { SiteStore } from './siteStore';
 
@@ -42,6 +43,7 @@ const LOCAL_HOSTS = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
 
 export interface Studio {
   store: SiteStore;
+  forms: FormsStore;
   remote: Remote;
   /** Connect-style middleware for everything under `/studio/`. */
   handle(req: Req, res: Res, next: Next): void;
@@ -50,6 +52,7 @@ export interface Studio {
 
 export function createStudio(opts: StudioOptions): Studio {
   const store = new SiteStore(path.resolve(opts.dir), { saveDelay: opts.saveDelay });
+  const forms = new FormsStore(path.resolve(opts.dir));
   const remote = new Remote(opts.credentials, opts.fetch);
   const dashboard = opts.dashboard ? normalizeDashboard(opts.dashboard) : DEFAULT_DASHBOARD;
   const doFetch = opts.fetch || globalThis.fetch.bind(globalThis);
@@ -146,8 +149,9 @@ export function createStudio(opts: StudioOptions): Studio {
     }
     if (p.startsWith('/studio/local/editor/') || p === '/studio/local/editor') return editorApi(store, req, res, p.slice('/studio/local/editor'.length) || '/');
     if (p.startsWith('/studio/local/content/')) return contentApi(store, req, res, p.slice('/studio/local/content'.length));
-    if ((m = p.match(/^\/studio\/remote\/([^/]+)\/(pages|files)(\/.*)?$/))) {
-      return remote.proxy(req, res, decodeURIComponent(m[1]), m[2] as 'pages' | 'files', m[3] || '', (req.url || '').split('?')[1] || '');
+    if (p === '/studio/local/forms' || p.startsWith('/studio/local/forms/')) return formsApi(forms, req, res, p.slice('/studio/local/forms'.length) || '/');
+    if ((m = p.match(/^\/studio\/remote\/([^/]+)\/(pages|files|forms)(\/.*)?$/))) {
+      return remote.proxy(req, res, decodeURIComponent(m[1]), m[2] as 'pages' | 'files' | 'forms', m[3] || '', (req.url || '').split('?')[1] || '');
     }
     // The fonts catalogues (grapesjs-fonts): the dashboard's public proxy.
     if ((m = p.match(/^\/studio\/fonts\/(.+)$/)) && method === 'GET') {
@@ -170,6 +174,7 @@ export function createStudio(opts: StudioOptions): Studio {
 
   return {
     store,
+    forms,
     remote,
     ready,
     handle(req, res, next) {

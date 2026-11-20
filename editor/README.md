@@ -28,11 +28,14 @@ from a local build, to try a change before publishing.
 | `font-awesome.min.css`, `fontawesome-webfont.woff2`, `fontawesome-webfont.woff` | npm `font-awesome@4.7.0` (`css/`, `fonts/`): GrapesJS' icon font, which it would otherwise load from cdnjs (`cssIcons`). The CSS's `@font-face` is rewritten to these two files in the same folder (`url('fontawesome-webfont.woff2?v=4.7.0')`, then the `.woff`) |
 | `tui-code-snippet.min.js`, `tui-color-picker.min.js`, `tui-color-picker.min.css`, `tui-image-editor.min.js`, `tui-image-editor.min.css` | npm (`dist/`): what grapesjs-tui-image-editor would load from uicdn.toast.com |
 | `roboto-{latin,cyrillic}-{400,500}-normal.woff2` | npm `@fontsource/roboto@5.3.0` (`files/`), for the theme |
-| `grapesjs-cloud-assets.js`, `dropbox-callback.html`, `microsoft-callback.html` | npm `grapesjs-cloud-assets` (`dist/`; the sign-in popups return to the two pages) |
-| `grapesjs-sidebar-tools.js`, `grapesjs-context-menu.js`, `grapesjs-fonts.js`, `grapesjs-storage.js` | our plugins, npm, `dist/<name>.umd.cjs` |
-| `grapesjs-ruler.js` | npm `grapesjs-ruler`, `dist/grapesjs-ruler.umd.cjs`: rulers, a crosshair and guides around the canvas; its colours follow Luna's theme (`luna-theme.css`) |
-| `grapesjs-pages.js` | our grapesjs-pages, published as npm `grapesjs-site-pages`, `dist/grapesjs-pages.umd.cjs` |
-| `grapesjs-scripts.js` | our blueprints plugin, npm `grapesjs-blueprints`, `dist/grapesjs-scripts.umd.cjs` (blueprintsjs bundled in) |
+| `grapesjs-cloud-assets.js`, `dropbox-callback.html`, `microsoft-callback.html`, `box-callback.html` | npm `grapesjs-cloud-assets` (`dist/`; the sign-in popups return to these pages) |
+| `grapesjs-sidebar-tools.js`, `grapesjs-context-menu.js`, `grapesjs-fonts.js` | our plugins, npm, `dist/<name>.umd.js` |
+| `grapesjs-storage.js` | npm `grapesjs-storage` 0.2, `dist/grapesjs-storage.umd.cjs` (1.x waits for luna-pages' content model) |
+| `grapesjs-forms.js`, `grapesjs-forms-runtime.js` | npm `grapesjs-forms`, `dist/grapesjs-forms.umd.js` and `dist/runtime.iife.js` (the published forms' script; luna-forms serves its own copy) |
+| `grapesjs-darkreader.js`, `darkreader.js` | npm `grapesjs-darkreader` (`dist/grapesjs-darkreader.umd.js`) and Dark Reader itself (npm `darkreader`, for the canvas preview) |
+| `grapesjs-ruler.js` | npm `grapesjs-ruler`, `dist/grapesjs-ruler.umd.js`: rulers, a crosshair and guides around the canvas; its colours follow Luna's theme (`luna-theme.css`) |
+| `grapesjs-pages.js` | our grapesjs-pages, published as npm `grapesjs-site-pages`, `dist/grapesjs-pages.umd.js` |
+| `grapesjs-scripts.js` | our blueprints plugin, npm `grapesjs-blueprints`, `dist/grapesjs-scripts.umd.js` (blueprintsjs bundled in) |
 | `luna-theme.css` | **ours**, `editor/luna-theme.css`: Luna's theme, light and dark after MUI (dark with `<html data-theme="dark">`, or `system` and a dark OS) (palette, Roboto, radii, elevations), sizes in px so the sidebar (320px) and the block tiles look the same on 4K; it also restyles the plugins written for the dark theme |
 | `luna-editor.js` | **ours**: luna-studio's `src/editor` (`npm run build:editor`): the plugins' settings, uploads to luna-files, the status texts. Only in the dashboard's copy (`editor:update` adds it to the manifest); luna-studio bundles the same code into its app |
 

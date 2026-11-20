@@ -25,7 +25,9 @@
     "grapesjs-fonts.js",
     "grapesjs-scripts.js",
     "grapesjs-pages.js",
-    "grapesjs-storage.js"
+    "grapesjs-storage.js",
+    "grapesjs-forms.js",
+    "grapesjs-darkreader.js"
   ],
   "styles": [
     "grapes.min.css",

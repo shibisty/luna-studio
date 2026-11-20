@@ -113,6 +113,16 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
   return j as T;
 }
 
+/** A form of grapesjs-forms as its REST API has it. */
+interface FormJSON {
+  id: string;
+  name: string;
+  fields: unknown[];
+  settings?: unknown;
+  attrs?: unknown;
+}
+const formWrite = (f: FormJSON) => ({ name: f.name, fields: f.fields, ...(f.settings ? { settings: f.settings } : {}), ...(f.attrs ? { attrs: f.attrs } : {}) });
+
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, ...kids: Array<Node | string>) => {
   const e = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
@@ -231,6 +241,20 @@ async function main(): Promise<void> {
   const isRemote = target.mode === 'remote';
   const remoteName = isRemote ? (target as Extract<Target, { mode: 'remote' }>).name : '';
 
+  const base = isRemote ? `/studio/remote/${encodeURIComponent((target as any).app)}` : '';
+  // Forms: the folder's forms/ through the studio's own API, or luna-forms
+  // through the dashboard (where published sites post comes from there).
+  let forms: { api: string; submitUrl?: string | null; headers: () => Record<string, string> } | null = isRemote
+    ? null
+    : { api: '/studio/local/forms', headers: () => HEADERS };
+  if (isRemote) {
+    try {
+      const info = await api<{ submit_url?: string }>('GET', `${base}/forms/info`);
+      forms = { api: `${base}/forms`, submitUrl: info.submit_url || null, headers: () => HEADERS };
+    } catch {
+      // The dashboard has no luna-forms: forms stay in this browser.
+    }
+  }
   const preview = button(w.preview, async () => {
     if (!editor) return;
     const t = await previewTarget(editor, ew);
@@ -253,8 +277,20 @@ async function main(): Promise<void> {
           const r = await fetch('/studio/api/export.zip', { headers: HEADERS });
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           const rep = await editor.PagesManager.importArchive(new Uint8Array(await r.arrayBuffer()), { mode: 'replace' });
-          const errs = rep.errors.map((e: any) => `${e.name}: ${e.error}`).join('; ');
-          say(fmt(w.uploaded, rep.created, rep.updated) + (errs ? ' ' + fmt(w.failed, errs) : ''), !!errs);
+          const errs = rep.errors.map((e: any) => `${e.name}: ${e.error}`);
+          // The folder's forms go to luna-forms (the same ids: the pages' forms keep working).
+          if (forms) {
+            const local = await api<{ items: FormJSON[] }>('GET', '/studio/local/forms/forms');
+            for (const f of local.items || []) {
+              try {
+                await api('PUT', `${forms.api}/forms/${encodeURIComponent(f.id)}`, formWrite(f));
+              } catch (e) {
+                errs.push(`${f.name}: ${(e as Error).message}`);
+              }
+            }
+            await editor.Forms?.reload();
+          }
+          say(fmt(w.uploaded, rep.created, rep.updated) + (errs.length ? ' ' + fmt(w.failed, errs.join('; ')) : ''), !!errs.length);
         } catch (e) {
           say(fmt(w.failed, (e as Error).message), true);
         }
@@ -266,6 +302,11 @@ async function main(): Promise<void> {
         try {
           const bytes: Uint8Array = await editor.PagesManager.exportArchive({ html: true });
           const r = await api<{ records: number }>('POST', '/studio/api/import', bytes);
+          // And the application's forms into forms/.
+          if (forms) {
+            const remote = await api<{ items: FormJSON[] }>('GET', `${forms.api}/forms`);
+            for (const f of remote.items || []) await api('PUT', `/studio/local/forms/forms/${encodeURIComponent(f.id)}`, formWrite(f));
+          }
           say(fmt(w.pulled, r.records));
         } catch (e) {
           say(fmt(w.failed, (e as Error).message), true);
@@ -306,7 +347,6 @@ async function main(): Promise<void> {
 
   /* ---- the editor ---- */
   await loadBundle('/editor');
-  const base = isRemote ? `/studio/remote/${encodeURIComponent((target as any).app)}` : '';
   editor = mount({
     container: editorBox,
     pagesApi: isRemote ? `${base}/pages/editor` : '/studio/local/editor',
@@ -315,6 +355,8 @@ async function main(): Promise<void> {
     // One cache per target, so a local folder and an application never mix.
     cacheDbName: isRemote ? `luna-studio-${(target as any).url}-${(target as any).app}` : `luna-studio-local-${state.dir}`,
     files: isRemote ? { api: `${base}/files`, max: 10 * 1024 * 1024, headers: () => HEADERS } : null,
+    forms,
+    darkreader: '/editor/darkreader.js',
     lang,
     fonts: '/studio/fonts',
     icons: '/editor/font-awesome.min.css',

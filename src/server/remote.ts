@@ -18,7 +18,8 @@ import { HttpError, readBody, type Req, type Res } from './http';
  *   POST /studio/token   {grant_type: authorization_code, code, code_verifier, redirect_uri} → {access_token, expires_in, developer}
  *   POST /studio/revoke  (Bearer) — signs this token out
  *   GET  /studio/v1/me, /studio/v1/apps
- *   ANY  /studio/v1/apps/{app}/pages/api/{path...}, /studio/v1/apps/{app}/files/api/{path...}
+ *   ANY  /studio/v1/apps/{app}/pages/api/{path...}, /studio/v1/apps/{app}/files/api/{path...},
+ *        /studio/v1/apps/{app}/forms/api/{path...}
  */
 
 export interface Account {
@@ -182,12 +183,12 @@ export class Remote {
   }
 
   /**
-   * Forwards an editor call to the dashboard: `service` is `pages` or
-   * `files`, `rest` the path after `/api`. Bodies are passed through as
+   * Forwards an editor call to the dashboard: `service` is `pages`,
+   * `files` or `forms`, `rest` the path after `/api`. Bodies are passed through as
    * bytes (JSON, multipart uploads); the validators and the version
    * headers both ways.
    */
-  async proxy(req: Req, res: Res, app: string, service: 'pages' | 'files', rest: string, query: string): Promise<void> {
+  async proxy(req: Req, res: Res, app: string, service: 'pages' | 'files' | 'forms', rest: string, query: string): Promise<void> {
     const a = await this.account();
     if (!a) throw new HttpError(401, 'Sign in to a Luna dashboard first.');
     // Only paths below the application's API: no dot segments (fetch would resolve them).
