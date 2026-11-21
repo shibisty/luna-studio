@@ -213,15 +213,29 @@ export function mount(cfg: MountConfig): AnyEditor {
   plugins.push(
     // Every view is a tab the user can dock left, right or at the bottom.
     (ed) => window.grapesjsSidebarTools(ed, { sizes: { right: 320 } }),
+    window.grapesjsContextMenu.default,
+    // The order of luna's own plugins is the stand's (grapesjs/index.html):
+    // grapesjs-pages before the plugins that hook into it (storage, the
+    // theme's per-site settings, forms).
+    (ed) =>
+      pages(ed, {
+        ...(cfg.pagesOptions || {}),
+        remote: { url: cfg.pagesApi, headers, markup: publishMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
+      }),
+    // Blueprints: page behaviour as node graphs, compiled to JavaScript.
+    window.grapesjsScripts.default,
+    (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers } }),
+    // Web fonts; their catalogues through a proxy (the APIs send no CORS headers).
+    (ed) => window.grapesjsFonts.default(ed, cfg.fonts ? { proxy: cfg.fonts } : {}),
     // Rulers, a crosshair and draggable guides (a button in the options panel;
     // shown or hidden as the user left it). Skipped when a host page has not
     // loaded the script (an older luna-dashboard).
     (ed) => window.grapesjsRuler && window.grapesjsRuler.default(ed, {}),
-    window.grapesjsContextMenu.default,
-    // Web fonts; their catalogues through a proxy (the APIs send no CORS headers).
-    (ed) => window.grapesjsFonts.default(ed, cfg.fonts ? { proxy: cfg.fonts } : {}),
-    // Blueprints: page behaviour as node graphs, compiled to JavaScript.
-    window.grapesjsScripts.default,
+    // A generated dark (or light) theme of the site and its toggle; on
+    // published pages luna-pages runs the theme (see themeMarkup).
+    (ed) =>
+      window.grapesjsDarkReader &&
+      window.grapesjsDarkReader.default(ed, { ...(cfg.darkreader ? { src: cfg.darkreader } : {}), exportRuntime: false }),
     // Forms with a backend: luna-forms keeps them and what visitors send
     // (luna-pages points every published form at it and adds its script).
     (ed) =>
@@ -230,18 +244,6 @@ export function mount(cfg: MountConfig): AnyEditor {
         rest: cfg.forms ? { url: cfg.forms.api, headers: cfg.forms.headers || headers } : null,
         submitUrl: (cfg.forms && cfg.forms.submitUrl) || null,
       }),
-    // A generated dark (or light) theme of the site and its toggle; on
-    // published pages luna-pages runs the theme (see themeMarkup).
-    (ed) =>
-      window.grapesjsDarkReader &&
-      window.grapesjsDarkReader.default(ed, { ...(cfg.darkreader ? { src: cfg.darkreader } : {}), exportRuntime: false }),
-    // grapesjs-pages first: grapesjs-storage then leaves the templates' designs to it.
-    (ed) =>
-      pages(ed, {
-        ...(cfg.pagesOptions || {}),
-        remote: { url: cfg.pagesApi, headers, markup: publishMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
-      }),
-    (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers } }),
     ...(cfg.mcp ? [mcpBridge(cfg.mcp)] : []),
     ...(cfg.plugins || [])
   );
