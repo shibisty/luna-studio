@@ -1,6 +1,6 @@
 {
   "name": "luna-studio",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The Luna site editor (GrapesJS with Luna's plugins and settings) as a local app: edit a site kept as a folder at localhost, export it as an archive, or sign in to a Luna dashboard and edit an application's site directly. With an MCP server, so Claude can build the site in the editor.",
   "type": "module",
   "bin": {
@@ -68,8 +68,8 @@
     "grapesjs-preset-webpage": "1.0.3",
     "grapesjs-ruler": "0.3.1",
     "grapesjs-sidebar-tools": "2.5.0",
-    "grapesjs-site-pages": "2.15.0",
-    "grapesjs-storage": "1.5.0",
+    "grapesjs-site-pages": "2.16.0",
+    "grapesjs-storage": "1.6.0",
     "grapesjs-style-bg": "2.0.2",
     "grapesjs-style-filter": "1.0.2",
     "grapesjs-style-gradient": "3.0.3",
