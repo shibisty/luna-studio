@@ -84,10 +84,11 @@ export interface MountConfig {
   mcp?: McpBridgeOptions | null;
 }
 
-/** The record being edited, for a preview: an entry or a page; null with a reason. */
+/**
+ * The page being edited, for a preview (a data record of grapesjs-storage
+ * is a page too); an error for layouts, templates, components and the site.
+ */
 export async function previewTarget(editor: AnyEditor, words: Words = WORDS): Promise<{ id: string } | { error: string }> {
-  const st = editor.ContentStorage && editor.ContentStorage.current();
-  if (st) return { id: st.entry.id };
   const pm = editor.PagesManager;
   const id = pm && pm.getActiveId();
   if (!id) return { error: words.openFirst };
