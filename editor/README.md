@@ -30,7 +30,7 @@ from a local build, to try a change before publishing.
 | `roboto-{latin,cyrillic}-{400,500}-normal.woff2` | npm `@fontsource/roboto@5.3.0` (`files/`), for the theme |
 | `grapesjs-cloud-assets.js`, `dropbox-callback.html`, `microsoft-callback.html`, `box-callback.html` | npm `grapesjs-cloud-assets` (`dist/`; the sign-in popups return to these pages) |
 | `grapesjs-sidebar-tools.js`, `grapesjs-context-menu.js`, `grapesjs-fonts.js` | our plugins, npm, `dist/<name>.umd.js` |
-| `grapesjs-storage.js` | npm `grapesjs-storage` 0.2, `dist/grapesjs-storage.umd.cjs` (1.x waits for luna-pages' content model) |
+| `grapesjs-storage.js`, `jodit.fat.min.js`, `jodit.fat.min.css` | npm `grapesjs-storage` (`dist/grapesjs-storage.umd.js`) and Jodit (npm `jodit`, `es2021/`, the version the plugin pins) for its HTML fields, not jsDelivr |
 | `grapesjs-forms.js`, `grapesjs-forms-runtime.js` | npm `grapesjs-forms`, `dist/grapesjs-forms.umd.js` and `dist/runtime.iife.js` (the published forms' script; luna-forms serves its own copy) |
 | `grapesjs-darkreader.js`, `darkreader.js` | npm `grapesjs-darkreader` (`dist/grapesjs-darkreader.umd.js`) and Dark Reader itself (npm `darkreader`, for the canvas preview) |
 | `grapesjs-ruler.js` | npm `grapesjs-ruler`, `dist/grapesjs-ruler.umd.js`: rulers, a crosshair and guides around the canvas; its colours follow Luna's theme (`luna-theme.css`) |

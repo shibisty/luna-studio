@@ -15,7 +15,7 @@ import { archiveFiles, packArchive, readArchiveFiles, type ArchiveRecord } from 
  * only the files whose contents changed.
  */
 
-export type Kind = 'site' | 'layout' | 'template' | 'page';
+export type Kind = 'site' | 'layout' | 'template' | 'page' | 'component';
 
 export interface Rec {
   kind: Kind;
@@ -30,6 +30,8 @@ export interface Rec {
   layout_id?: string | null;
   template_id?: string | null;
   parent_id?: string | null;
+  /** A data record of grapesjs-storage 1.x: the page whose design it takes. */
+  data_of?: string | null;
   position?: number;
   status?: 'draft' | 'published' | 'archived';
   published_at?: string | null;
@@ -54,7 +56,7 @@ export interface Revision {
 }
 
 interface State {
-  records: Record<string, { version: number; created_at: string; updated_at: string; status?: string; published_at?: string | null }>;
+  records: Record<string, { version: number; created_at: string; updated_at: string; status?: string; published_at?: string | null; data_of?: string | null }>;
 }
 
 const KEEP_REVISIONS = 20;
@@ -138,8 +140,6 @@ export class SiteStore {
       const arc = readArchiveFiles(files);
       this.edited = arc.edited;
       for (const a of arc.records) {
-        // Linked components (grapesjs-site-pages 2.10): the editor keeps them in its cache (no /components here).
-        if (a.kind === 'component') continue;
         const st = state.records[a.id] || { version: 1, created_at: t, updated_at: t };
         const rec: Rec = { kind: a.kind, id: a.id, name: a.name, version: st.version, created_at: st.created_at, updated_at: st.updated_at, data: a.data };
         if (a.kind === 'page') {
@@ -151,6 +151,7 @@ export class SiteStore {
           rec.values = a.values || {};
           rec.status = (st.status as Rec['status']) || 'draft';
           rec.published_at = st.published_at ?? null;
+          rec.data_of = st.data_of ?? null;
         }
         if (a.kind === 'template') rec.fields = a.fields || [];
         if (a.kind === 'site') rec.settings = a.values || {};
@@ -190,7 +191,8 @@ export class SiteStore {
   /** The designs as archive records (no entries). */
   archiveRecords(): ArchiveRecord[] {
     const out: ArchiveRecord[] = [];
-    const order: Kind[] = ['site', 'layout', 'template', 'page'];
+    // Components first: pages and layouts hold copies of them.
+    const order: Kind[] = ['site', 'component', 'layout', 'template', 'page'];
     const recs = [...this.records.values()]
       .filter((r) => !(r.kind === 'page' && r.template_id))
       .sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind) || a.created_at.localeCompare(b.created_at));
@@ -274,7 +276,12 @@ export class SiteStore {
     const state: State = { records: {} };
     for (const r of this.records.values()) {
       if (r.kind === 'page' && r.template_id) continue;
-      state.records[r.id] = { version: r.version, created_at: r.created_at, updated_at: r.updated_at, ...(r.kind === 'page' ? { status: r.status, published_at: r.published_at ?? null } : {}) };
+      state.records[r.id] = {
+        version: r.version,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        ...(r.kind === 'page' ? { status: r.status, published_at: r.published_at ?? null, ...(r.data_of ? { data_of: r.data_of } : {}) } : {}),
+      };
     }
     await this.writeIfChanged('.studio/state.json', JSON.stringify(state, null, 2) + '\n');
     const entries = [...this.records.values()].filter((r) => r.kind === 'page' && r.template_id);
@@ -362,6 +369,9 @@ export class SiteStore {
       const layout = this.ref('layout_id', body.layout_id, 'layout');
       const template = this.ref('template_id', body.template_id, 'template');
       const parent = this.ref('parent_id', body.parent_id, 'page', id);
+      const dataOf = this.ref('data_of', body.data_of, 'page', id);
+      if (dataOf !== undefined) rec.data_of = dataOf;
+      rec.data_of ??= null;
       if (layout !== undefined) rec.layout_id = layout;
       if (template !== undefined) rec.template_id = template;
       if (parent !== undefined) rec.parent_id = parent;
@@ -411,6 +421,14 @@ export class SiteStore {
       throw new StoreError(409, 'Pages still use this template.');
     }
     this.records.delete(rec.id);
+    // A page's data records go with it (grapesjs-storage 1.x).
+    for (const r of [...this.records.values()]) {
+      if (r.data_of === rec.id) {
+        this.records.delete(r.id);
+        this.revisions.delete(r.id);
+        this.dirtyRevisions.add(r.id);
+      }
+    }
     for (const r of this.records.values()) {
       if (r.layout_id === rec.id) r.layout_id = null;
       if (r.parent_id === rec.id) r.parent_id = null;
@@ -534,7 +552,6 @@ export class SiteStore {
     const t = now();
     for (const [id, r] of [...old]) if (!(r.kind === 'page' && r.template_id)) old.delete(id);
     for (const a of arc.records) {
-      if (a.kind === 'component') continue;
       const rec: Rec = { kind: a.kind, id: a.kind === 'site' ? SITE_ID : a.id.toLowerCase(), name: a.name, version: 1, created_at: t, updated_at: t, data: a.data ?? null };
       if (a.kind === 'page') {
         rec.slug = a.slug ? normalizeSlug(a.slug) : normalizeSlug(a.name);

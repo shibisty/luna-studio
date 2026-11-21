@@ -84,6 +84,10 @@ my-site/
   layouts/<name>/          project.json, body.html, style.css
   templates/<name>/        project.json, body.html, style.css, index.html, fields.json
   pages/<address>/         project.json, body.html, style.css, index.html   (/ → pages/index)
+  components/<name>/       linked components (grapesjs-site-pages 2.10+): project.json, body.html, style.css
+  content/templates/<id>.json   grapesjs-storage 1.x: a template (a group of fields)
+  content/entries/<id>.json     the data of a page (the page's id) or of a standalone entry: values, published values
+  content/languages.json        the site's languages { default, enabled }
   forms/<id>.json          the forms of grapesjs-forms, as the editor writes them
   .studio/                 versions, publish state, entries of templates, revisions, the forms' versions,
                            what the editor's form preview sent (submissions/, uploads/) (the studio's own)
@@ -98,8 +102,13 @@ When the studio starts (or on *reload*, `POST /studio/api/reload`), a
 (GrapesJS parses it; settings of components plain HTML cannot carry are
 lost) and the record gets a new version.
 
-Entries of templates and their values are content, not design: they stay in
-`.studio/entries.json` and are not part of the archive.
+**Content** (grapesjs-storage 1.x: templates as groups of fields, every
+page's data, data records under a page, languages) is in `content/`, next to
+the design and in git with it; versions in `.studio/content.json`. A data
+record is a page with `data_of` (kept in `.studio/state.json`; the archive
+format has no field for it); deleting the page deletes its data records.
+Entries of 0.x templates (pages with `template_id`) stay in
+`.studio/entries.json`, outside the archive.
 
 **Forms** (grapesjs-forms: the *Forms* button, the *Forms* blocks) are kept in
 `forms/` by the studio's own copy of luna-forms' API: versions, and the
@@ -244,7 +253,8 @@ Every editor file comes from npm: GrapesJS, the official plugins and ours
 `grapesjs-forms`, `grapesjs-darkreader`, `grapesjs-blueprints`, `grapesjs-fonts`,
 `grapesjs-sidebar-tools`, `grapesjs-context-menu`, `grapesjs-ruler`,
 `grapesjs-cloud-assets`), pinned in `devDependencies`. grapesjs-storage stays
-at 0.2 until luna-pages has 1.x's content model (field groups, data per page).
+1.5: the content API is the studio's own (`content/`), luna-pages' remote one
+follows the same contract.
 `npm run bundle` puts them in `public/editor` (git-ignored) with a
 `manifest.json` of versions and hashes; see [editor/README.md](editor/README.md).
 The server bundles `grapesjs-site-pages/archive` (the archive format). The

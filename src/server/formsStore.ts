@@ -60,6 +60,13 @@ export class FormsStore {
     return this.loaded;
   }
 
+  /** Read the folder again (edits outside). */
+  reload(): Promise<void> {
+    this.forms.clear();
+    this.loaded = this.read();
+    return this.loaded;
+  }
+
   private async read(): Promise<void> {
     const meta: Record<string, Meta> = (await readJsonFile(path.join(this.studioDir, 'forms.json'))) || {};
     if (!existsSync(this.formsDir)) return;

@@ -57,6 +57,10 @@ export interface MountConfig {
   forms?: FormsConfig | null;
   /** darkreader.js for grapesjs-darkreader's preview (the bundle's copy; jsDelivr otherwise). */
   darkreader?: string;
+  /** Jodit for grapesjs-storage's HTML fields (the bundle's copy; jsDelivr otherwise). */
+  jodit?: { js: string; css: string };
+  /** grapesjs-blueprints' library search through a proxy (npm, jsDelivr and cdnjs answer CORS, so optional). */
+  librariesProxy?: string;
   /** Base URL of the fonts catalogues proxy (luna-dashboard's `/editor/fonts`). */
   fonts?: string;
   /** Font Awesome 4.7's CSS (GrapesJS fetches it from cdnjs otherwise). */
@@ -223,8 +227,9 @@ export function mount(cfg: MountConfig): AnyEditor {
         remote: { url: cfg.pagesApi, headers, markup: publishMarkup, ...(cfg.cacheDbName ? { cacheDbName: cfg.cacheDbName } : {}) },
       }),
     // Blueprints: page behaviour as node graphs, compiled to JavaScript.
-    window.grapesjsScripts.default,
-    (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers } }),
+    (ed) => window.grapesjsScripts.default(ed, cfg.librariesProxy ? { libraries: { proxy: cfg.librariesProxy } } : {}),
+    // Templates as groups of fields, every page's data, data records, languages.
+    (ed) => storage.default(ed, { rest: { url: cfg.contentApi, headers }, ...(cfg.jodit ? { htmlEditor: cfg.jodit } : {}) }),
     // Web fonts; their catalogues through a proxy (the APIs send no CORS headers).
     (ed) => window.grapesjsFonts.default(ed, cfg.fonts ? { proxy: cfg.fonts } : {}),
     // Rulers, a crosshair and draggable guides (a button in the options panel;

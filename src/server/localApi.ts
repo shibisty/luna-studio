@@ -1,14 +1,14 @@
 import { compose } from 'grapesjs-site-pages/archive';
-import { fail, HttpError, ifMatch, json, queryOf, readJson, type Req, type Res } from './http';
-import { entryJSON, type Kind, type Rec, SiteStore } from './siteStore';
+import { fail, HttpError, ifMatch, json, readJson, type Req, type Res } from './http';
+import { type Kind, type Rec, SiteStore } from './siteStore';
 
 /**
  * The local folder over HTTP, as luna-pages offers it to the editor:
- * the editor contract (grapesjs-pages remote mode, `…/editor`) and the
- * content API (grapesjs-storage, `…/content`). Mounted at `/studio/local`.
+ * the editor contract (grapesjs-pages remote mode, `…/editor`). The content
+ * API (grapesjs-storage, `…/content`) is contentStore.ts. Mounted at `/studio/local`.
  */
 
-const COLL: Record<string, Exclude<Kind, 'site'>> = { pages: 'page', layouts: 'layout', templates: 'template' };
+const COLL: Record<string, Exclude<Kind, 'site'>> = { pages: 'page', layouts: 'layout', templates: 'template', components: 'component' };
 
 /** A record's header (lists) or the whole record (`full`). */
 export function wire(r: Rec, full = false): Record<string, unknown> {
@@ -25,6 +25,7 @@ export function wire(r: Rec, full = false): Record<string, unknown> {
       layout_id: r.layout_id ?? null,
       template_id: r.template_id ?? null,
       parent_id: r.parent_id ?? null,
+      data_of: r.data_of ?? null,
       position: r.position ?? 0,
     });
   }
@@ -38,7 +39,7 @@ export function wire(r: Rec, full = false): Record<string, unknown> {
 
 const etag = (r: Rec) => ({ ETag: `"${r.version}"` });
 
-/** The editor contract: `/site`, `/{pages|layouts|templates}[/{id}[/publish|unpublish|revisions[/{n}/restore]]]`. */
+/** The editor contract: `/site`, `/{pages|layouts|templates|components}[/{id}[/publish|unpublish|revisions[/{n}/restore]]]`. */
 export async function editorApi(store: SiteStore, req: Req, res: Res, path: string): Promise<void> {
   const method = (req.method || 'GET').toUpperCase();
   try {
@@ -56,7 +57,7 @@ export async function editorApi(store: SiteStore, req: Req, res: Res, path: stri
       if (rest === '/revisions' && method === 'GET') return json(res, 200, { items: store.revisionList('site', 'site') });
       throw new HttpError(404, 'Not found.');
     }
-    const m = path.match(/^\/(pages|layouts|templates)(?:\/([^/]+))?(?:\/(publish|unpublish|revisions)(?:\/(\d+)\/restore)?)?\/?$/);
+    const m = path.match(/^\/(pages|layouts|templates|components)(?:\/([^/]+))?(?:\/(publish|unpublish|revisions)(?:\/(\d+)\/restore)?)?\/?$/);
     if (!m) throw new HttpError(404, 'Not found.');
     const kind = COLL[m[1]];
     const id = m[2] ? decodeURIComponent(m[2]) : '';
@@ -94,61 +95,6 @@ export async function editorApi(store: SiteStore, req: Req, res: Res, path: stri
       return json(res, 200, wire(r, true), etag(r));
     }
     throw new HttpError(405, 'Method not allowed.');
-  } catch (e) {
-    fail(res, e);
-  }
-}
-
-/** The content API: `/templates[/{id}]`, `/entries[/{id}[/publish]]`. */
-export async function contentApi(store: SiteStore, req: Req, res: Res, path: string): Promise<void> {
-  const method = (req.method || 'GET').toUpperCase();
-  const tpl = (r: Rec, data = false) => ({ id: r.id, name: r.name, fields: r.fields || [], version: r.version, updated_at: r.updated_at, ...(data ? { data: r.data ?? null } : {}) });
-  try {
-    let m = path.match(/^\/templates(?:\/([^/]+))?\/?$/);
-    if (m) {
-      if (!m[1]) return json(res, 200, { items: store.list('template').map((r) => tpl(r)) });
-      const id = decodeURIComponent(m[1]);
-      if (method === 'GET') return json(res, 200, tpl(store.get('template', id), true));
-      if (method === 'PUT') {
-        const { rec, created } = store.putTemplateFields(id, (await readJson(req)) || {});
-        return json(res, created ? 201 : 200, tpl(rec));
-      }
-      throw new HttpError(405, 'Method not allowed.');
-    }
-    m = path.match(/^\/entries(?:\/([^/]+))?(?:\/(publish))?\/?$/);
-    if (m) {
-      if (!m[1]) {
-        const t = queryOf(req).get('template') || undefined;
-        return json(res, 200, { items: store.entries(t).map((r) => entryJSON(r)) });
-      }
-      const id = decodeURIComponent(m[1]);
-      const entry = () => {
-        const r = store.get('page', id);
-        if (!r.template_id) throw new HttpError(404, 'Not found.');
-        return r;
-      };
-      if (m[2] === 'publish' && method === 'POST') {
-        const cur = entry();
-        const out = store.publish('page', cur.id, {}, ifMatch(req));
-        return json(res, 200, entryJSON(out.rec), etag(out.rec));
-      }
-      if (m[2]) throw new HttpError(405, 'Method not allowed.');
-      if (method === 'GET') {
-        const r = entry();
-        return json(res, 200, entryJSON(r), etag(r));
-      }
-      if (method === 'PUT') {
-        const { rec, created } = store.putEntry(id, (await readJson(req)) || {}, ifMatch(req));
-        return json(res, created ? 201 : 200, entryJSON(rec), etag(rec));
-      }
-      if (method === 'DELETE') {
-        entry();
-        store.delete('page', id, ifMatch(req));
-        return json(res, 204);
-      }
-      throw new HttpError(405, 'Method not allowed.');
-    }
-    throw new HttpError(404, 'Not found.');
   } catch (e) {
     fail(res, e);
   }

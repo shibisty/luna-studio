@@ -118,7 +118,7 @@ describe('the editor contract over a folder', () => {
     await call('PUT', `/studio/local/editor/layouts/${ID(1)}`, { name: 'Main', data: project('<page-slot></page-slot>') });
     await call('POST', `/studio/local/editor/layouts/${ID(1)}/publish`, { html: '<header>H</header><page-slot></page-slot>', css: 'header{x:y}' });
     await call('PUT', `/studio/local/editor/templates/${ID(5)}`, { name: 'Product', data: project('<h1 data-field="title">T</h1>') });
-    await call('PUT', `/studio/local/content/templates/${ID(5)}`, { fields: [{ name: 'title', type: 'text' }] });
+    await call('PUT', `/studio/local/editor/templates/${ID(5)}`, { name: 'Product', fields: [{ name: 'title', type: 'text' }] });
     await call('PUT', `/studio/local/editor/pages/${ID(2)}`, { name: 'Home', slug: '/', layout_id: ID(1), data: project('<p>home</p>') });
     await call('POST', `/studio/local/editor/pages/${ID(2)}/publish`, { html: '<p>home</p>', css: '' });
     await call('PUT', `/studio/local/editor/pages/${ID(3)}`, { name: 'Post', slug: '/blog/post', data: project('<p>post</p>') });
@@ -161,23 +161,63 @@ describe('the editor contract over a folder', () => {
     expect(again.store.get('page', ID(3)).version).toBe(2);
   });
 
-  it('serves the content API: template fields without a new version, entries with plain keys', async () => {
-    await call('PUT', `/studio/local/editor/templates/${ID(5)}`, { name: 'Product', data: project('<h1 data-field="title">T</h1>') });
-    let r = await call('PUT', `/studio/local/content/templates/${ID(5)}`, { fields: [{ name: 'title', type: 'text' }] });
-    expect(r.json).toMatchObject({ id: ID(5), version: 1, fields: [{ name: 'title' }] });
-    r = await call('PUT', `/studio/local/content/entries/${ID(6)}`, { template_id: ID(5), name: 'Phone', values: { title: 'Phone X' } });
+  it('serves grapesjs-storage 1.x: templates, data per page, languages, in content/', async () => {
+    const T = 'tpl-product';
+    let r = await call('PUT', `/studio/local/content/templates/${T}`, { name: 'Product', fields: [{ id: 'f1', name: 'title', type: 'text', translatable: true }, { id: 'f2', name: 'price', type: 'number' }] });
     expect(r.status).toBe(201);
-    expect(r.json).toMatchObject({ template_id: ID(5), slug: '/phone', values: { title: 'Phone X' }, version: 1 });
-    r = await call('GET', `/studio/local/content/entries?template=${ID(5)}`);
-    expect(r.json.items).toHaveLength(1);
-    r = await call('POST', `/studio/local/content/entries/${ID(6)}/publish`, undefined, { 'If-Match': '"1"' });
-    expect(r.json.status).toBe('published');
-    expect((await call('DELETE', `/studio/local/editor/templates/${ID(5)}`)).status).toBe(409);
-    // Entries are not designs: not in the folder's archive.
+    expect(r.json).toMatchObject({ id: T, name: 'Product', version: 1 });
+    expect((await call('GET', '/studio/local/content/templates')).json.items.map((t: any) => t.name)).toEqual(['Product']);
+    r = await call('PUT', `/studio/local/content/templates/${T}`, { name: 'Product', fields: [{ id: 'f1', name: 'title', type: 'text' }] });
+    expect(r.json.version).toBe(2);
+
+    // A page and a data record of it (data_of); the data is an entry with the page's id.
+    await call('PUT', `/studio/local/editor/pages/${ID(2)}`, { name: 'Grinder', slug: '/grinder', values: { 'storage.template': T } });
+    r = await call('PUT', `/studio/local/editor/pages/${ID(3)}`, { name: 'Product 1', slug: '/grinder/1', data_of: ID(2) });
+    expect(r.json.data_of).toBe(ID(2));
+    r = await call('PUT', `/studio/local/content/entries/${ID(2)}`, { template_id: T, name: 'Grinder', values: { title: { 'uk-ua': 'Кавомолка', 'en-gb': 'Grinder' }, price: 1200 } });
+    expect(r.status).toBe(201);
+    r = await call('PUT', `/studio/local/content/entries/${ID(2)}`, { values: { price: null } }, { 'If-Match': '"1"' });
+    expect(r.json.values).toEqual({ title: { 'uk-ua': 'Кавомолка', 'en-gb': 'Grinder' } });
+    expect((await call('PUT', `/studio/local/content/entries/${ID(2)}`, { values: {} }, { 'If-Match': '"1"' })).status).toBe(412);
+    r = await call('POST', `/studio/local/content/entries/${ID(2)}/publish`, undefined, { 'If-Match': '"2"' });
+    expect(r.json).toMatchObject({ status: 'published', version: 3 });
+    expect((await call('GET', `/studio/local/content/entries?template=${T}`)).json.items).toHaveLength(1);
+
+    // Languages: 404 until set.
+    expect((await call('GET', '/studio/local/content/languages')).status).toBe(404);
+    r = await call('PUT', '/studio/local/content/languages', { default: 'uk-ua', enabled: ['en-gb', 'uk-ua'] });
+    expect(r.json).toEqual({ default: 'uk-ua', enabled: ['uk-ua', 'en-gb'] });
+    expect((await call('PUT', '/studio/local/content/languages', { default: 'UA', enabled: [] })).status).toBe(422);
+
+    // In the folder, and read back by a new studio.
+    const root = path.join(dir, 'site');
+    expect(JSON.parse(await readFile(path.join(root, `content/templates/${T}.json`), 'utf8')).name).toBe('Product');
+    expect(JSON.parse(await readFile(path.join(root, `content/entries/${ID(2)}.json`), 'utf8')).published.title['en-gb']).toBe('Grinder');
     await studio.store.flush();
-    const m = JSON.parse(await readFile(path.join(dir, 'site/manifest.json'), 'utf8'));
-    expect(m.records.some((x: any) => x.id === ID(6))).toBe(false);
-    expect(JSON.parse(await readFile(path.join(dir, 'site/.studio/entries.json'), 'utf8'))[0].id).toBe(ID(6));
+    const again = createStudio({ dir: root, saveDelay: 0, credentials: path.join(dir, 'creds.json') });
+    await again.ready;
+    await again.content.load();
+    expect(again.content.languages).toEqual({ default: 'uk-ua', enabled: ['uk-ua', 'en-gb'] });
+    expect(again.store.get('page', ID(3)).data_of).toBe(ID(2));
+
+    // Deleting the page takes its data records; deleting a template leaves the data.
+    expect((await call('DELETE', `/studio/local/editor/pages/${ID(2)}`)).status).toBe(204);
+    expect((await call('GET', `/studio/local/editor/pages/${ID(3)}`)).status).toBe(404);
+    expect((await call('DELETE', `/studio/local/content/templates/${T}`)).status).toBe(204);
+    expect((await call('GET', `/studio/local/content/entries/${ID(2)}`)).status).toBe(200);
+  });
+
+  it('keeps linked components (contract 2.1): /components, in the folder', async () => {
+    let r = await call('PUT', `/studio/local/editor/components/${ID(7)}`, { name: 'Header', data: project('<header>H</header>') });
+    expect(r.status).toBe(201);
+    expect(r.json.kind).toBe('component');
+    r = await call('POST', `/studio/local/editor/components/${ID(7)}/publish`, { html: '<header>H</header>', css: 'header{a:b}' });
+    expect(r.status).toBe(200);
+    expect((await call('GET', '/studio/local/editor/components')).json.items.map((c: any) => c.name)).toEqual(['Header']);
+    await studio.store.flush();
+    const again = createStudio({ dir: path.join(dir, 'site'), saveDelay: 0, credentials: path.join(dir, 'creds.json') });
+    await again.ready;
+    expect(again.store.get('component', ID(7)).name).toBe('Header');
   });
 
   it('previews a published page in its layout', async () => {
@@ -197,13 +237,14 @@ describe('the editor contract over a folder', () => {
   it('replaces the folder designs with an archive (a pull), entries stay', async () => {
     await call('PUT', `/studio/local/editor/pages/${ID(2)}`, { name: 'Old', slug: '/' });
     await call('PUT', `/studio/local/editor/templates/${ID(5)}`, { name: 'Product' });
-    await call('PUT', `/studio/local/content/entries/${ID(6)}`, { template_id: ID(5), name: 'Phone' });
+    await call('PUT', `/studio/local/content/entries/${ID(2)}`, { template_id: 'tpl', name: 'Old' });
     const zip = new Uint8Array(await (await fetch(base + '/studio/api/export.zip')).arrayBuffer());
     await call('PUT', `/studio/local/editor/pages/${ID(3)}`, { name: 'Extra' });
     const r = await fetch(base + '/studio/api/import', { method: 'POST', headers: { 'X-Luna-Studio': '1' }, body: zip });
     expect((await r.json()).records).toBe(3);
     const pages = (await call('GET', '/studio/local/editor/pages')).json.items.map((p: any) => p.name).sort();
-    expect(pages).toEqual(['Old', 'Phone']);
+    expect(pages).toEqual(['Old']);
+    expect((await call('GET', `/studio/local/content/entries/${ID(2)}`)).json.name).toBe('Old');
     expect((await fetch(base + '/studio/api/import', { method: 'POST', headers: { 'X-Luna-Studio': '1' }, body: 'junk' })).status).toBe(422);
   });
 });

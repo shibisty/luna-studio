@@ -105,13 +105,15 @@ const FILES = [
   ['grapesjs-fonts.js', 'grapesjs-fonts', 'dist/grapesjs-fonts.umd.js', js],
   ['grapesjs-scripts.js', 'grapesjs-blueprints', 'dist/grapesjs-scripts.umd.js', js, 'blueprintsjs bundled in'],
   ['grapesjs-pages.js', 'grapesjs-site-pages', 'dist/grapesjs-pages.umd.js', js],
-  // 0.2 until luna-pages has 1.x's content model (field groups, data per page): 0.x ships .umd.cjs only.
-  ['grapesjs-storage.js', 'grapesjs-storage', 'dist/grapesjs-storage.umd.cjs', js],
+  ['grapesjs-storage.js', 'grapesjs-storage', 'dist/grapesjs-storage.umd.js', js],
   ['grapesjs-forms.js', 'grapesjs-forms', 'dist/grapesjs-forms.umd.js', js],
   ['grapesjs-forms-runtime.js', 'grapesjs-forms', 'dist/runtime.iife.js', js, 'the published forms\' script (window.gjsfRuntime)'],
   ['grapesjs-darkreader.js', 'grapesjs-darkreader', 'dist/grapesjs-darkreader.umd.js', js],
   // Dark Reader itself, for the canvas preview (grapesjs-darkreader loads it from jsDelivr otherwise).
   ['darkreader.js', 'darkreader', 'darkreader.js', js],
+  // Jodit (MIT) for grapesjs-storage's HTML fields; the version the plugin pins, not jsDelivr.
+  ['jodit.fat.min.js', 'jodit', 'es2021/jodit.fat.min.js', js],
+  ['jodit.fat.min.css', 'jodit', 'es2021/jodit.fat.min.css'],
 ];
 
 /** Ours, kept in this repository (editor/). */

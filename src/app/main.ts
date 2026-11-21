@@ -357,6 +357,7 @@ async function main(): Promise<void> {
     files: isRemote ? { api: `${base}/files`, max: 10 * 1024 * 1024, headers: () => HEADERS } : null,
     forms,
     darkreader: '/editor/darkreader.js',
+    jodit: { js: '/editor/jodit.fat.min.js', css: '/editor/jodit.fat.min.css' },
     lang,
     fonts: '/studio/fonts',
     icons: '/editor/font-awesome.min.css',
