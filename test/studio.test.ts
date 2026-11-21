@@ -188,6 +188,9 @@ describe('the editor contract over a folder', () => {
     r = await call('PUT', '/studio/local/content/languages', { default: 'uk-ua', enabled: ['en-gb', 'uk-ua'] });
     expect(r.json).toEqual({ default: 'uk-ua', enabled: ['uk-ua', 'en-gb'] });
     expect((await call('PUT', '/studio/local/content/languages', { default: 'UA', enabled: [] })).status).toBe(422);
+    expect((await call('PUT', '/studio/local/content/languages', { default: '', enabled: [] })).json).toEqual({ default: '', enabled: [] });
+    expect((await call('GET', '/studio/local/content/languages')).status).toBe(404);
+    await call('PUT', '/studio/local/content/languages', { default: 'uk-ua', enabled: ['en-gb', 'uk-ua'] });
 
     // In the folder, and read back by a new studio.
     const root = path.join(dir, 'site');

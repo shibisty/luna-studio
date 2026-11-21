@@ -232,6 +232,14 @@ export class ContentStore {
   /* ---------------- languages ---------------- */
 
   async putLanguages(body: unknown): Promise<Languages> {
+    // { default: '', enabled: [] }: the site has no languages (grapesjs-storage's way to clear them).
+    const b = body as Partial<Languages> | null;
+    if (!b || (!b.default && (!Array.isArray(b.enabled) || !b.enabled.length))) {
+      this.languages = null;
+      this.state.languages = { version: (this.state.languages?.version || 0) + 1, updated_at: new Date().toISOString() };
+      await this.save(['content', 'languages.json'], undefined);
+      return { default: '', enabled: [] };
+    }
     const l = checkLanguages(body, true) as Languages;
     const out: Languages = { default: l.default, enabled: [l.default, ...l.enabled.filter((c) => c !== l.default)] };
     this.languages = out;
