@@ -46,6 +46,13 @@ export interface MountConfig {
   files?: FilesConfig | null;
   /** The editor's language: `en` or one GrapesJS has a locale for (`ru`…). */
   lang?: string;
+  /**
+   * The sections of the pages sidebar to show (grapesjs-site-pages' `page`,
+   * `layout`, `template`, `component`, `site`); default pages and
+   * components, as the plugin has them without a server. The records of the
+   * others stay as they are (the site's styles are still saved and published).
+   */
+  pagesSections?: string[];
   /** grapesjs-forms' backend; without it forms stay in this browser (IndexedDB). */
   forms?: FormsConfig | null;
   /** darkreader.js for grapesjs-darkreader's preview (the bundle's copy; jsDelivr otherwise). */
@@ -122,6 +129,26 @@ function themeMarkup(out: { html: string; css: string; kind: string }): { html: 
   if (!settings || settings.enabled === false) return;
   const json = JSON.stringify(dr.getRuntimeConfig()).replace(/</g, '\\u003c');
   return { html: out.html + '\n<script type="application/json" ' + DARKREADER_ATTR + '>' + json + '<\/script>', css: out.css };
+}
+
+/**
+ * Hides the pages sidebar's sections not listed: grapesjs-site-pages draws
+ * one list, a header (`li.gjsp-section[data-section]`) then its items, and
+ * redraws it on every change, so the list is watched.
+ */
+function pagesSections(show: string[]): void {
+  const apply = (list: Element) => {
+    let hidden = false;
+    for (const li of Array.from(list.children) as HTMLElement[]) {
+      if (li.classList.contains('gjsp-section')) hidden = !show.includes(li.dataset.section || '');
+      if (li.hidden !== hidden) li.hidden = hidden;
+    }
+  };
+  const scan = () => document.querySelectorAll('.gjsp-section').forEach((h) => h.parentElement && apply(h.parentElement));
+  scan();
+  new MutationObserver((ms) => {
+    if (ms.some((m) => m.type === 'childList' && Array.from(m.addedNodes).some((n) => n instanceof Element && (n.matches('li') || n.querySelector('.gjsp-section'))))) scan();
+  }).observe(document.body, { childList: true, subtree: true });
 }
 
 /** The publish hooks of the open record, one after another. */
@@ -257,6 +284,7 @@ export function mount(cfg: MountConfig): AnyEditor {
   });
   window.editor = editor;
   if (up) editor.onReady(() => up.loadImages(editor));
+  editor.onReady(() => pagesSections(cfg.pagesSections || ['page', 'component']));
   editor.onReady(() => {
     // Plugins add their CSS as they start: the theme goes after it.
     document.querySelectorAll('link[href*="luna-theme.css"]').forEach((l) => document.head.appendChild(l));

@@ -315,6 +315,8 @@
 /* The pages sidebar's toolbar has 11 buttons (Board, Close last): wrap them in the 320px sidebar instead of clipping. */
 .gjsp-head { flex-wrap: wrap; }
 .gjsp-tools { flex-wrap: wrap; flex-shrink: 1; min-width: 0; }
+/* Sections hidden by luna-editor (MountConfig.pagesSections) with their items. */
+.gjsp-section[hidden], .gjsp-item[hidden] { display: none !important; }
 .gjsp-btn:hover, .gjss-btn:hover, .gjsp-act:hover, .gjss-act:hover, .gjsp-toggle:hover { background: var(--luna-hover); }
 .gjsp-item:hover, .gjsp-item:focus-visible, .gjss-item:hover, .gjss-item:focus-visible { background: var(--luna-hover); }
 .gjsp-item.is-active { background: var(--luna-primary-soft); color: var(--luna-primary); border-left-color: var(--luna-primary); }
