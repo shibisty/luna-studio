@@ -114,7 +114,8 @@ Entries of 0.x templates (pages with `template_id`) stay in
 `forms/` by the studio's own copy of luna-forms' API: versions, and the
 submissions the editor's *Preview* tab sends, checked by the plugin's rules
 (`.studio/submissions/<id>.json`, files in `.studio/uploads/`). *Upload the
-folder here* also writes the folder's forms into the application's
+folder here* also writes the folder's content (templates, entries, languages,
+which pages are data records) to the application's luna-pages and its forms into the application's
 luna-forms (same ids, so the pages' forms keep working; luna-pages points
 every published form at luna-forms); *Save to the folder* brings them back.
 

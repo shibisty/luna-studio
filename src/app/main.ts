@@ -123,6 +123,53 @@ interface FormJSON {
 }
 const formWrite = (f: FormJSON) => ({ name: f.name, fields: f.fields, ...(f.settings ? { settings: f.settings } : {}), ...(f.attrs ? { attrs: f.attrs } : {}) });
 
+/**
+ * grapesjs-storage's content from one server to another (`<base>/content`:
+ * templates, every entry with its values, published again where it was,
+ * the languages) and which pages are data records (`<base>/editor`: the
+ * site archive has no field for data_of). Returns what failed.
+ */
+async function copyContent(from: string, to: string): Promise<string[]> {
+  const errs: string[] = [];
+  const tryIt = async (what: string, f: () => Promise<unknown>) => {
+    try {
+      await f();
+    } catch (e) {
+      errs.push(`${what}: ${(e as Error).message}`);
+    }
+  };
+  const enc = encodeURIComponent;
+  const templates = await api<{ items: Array<{ id: string; name: string }> }>('GET', `${from}/content/templates`);
+  for (const t of templates.items || []) {
+    await tryIt(t.name, async () => {
+      const full = await api<{ name: string; fields: unknown[]; data?: unknown }>('GET', `${from}/content/templates/${enc(t.id)}`);
+      await api('PUT', `${to}/content/templates/${enc(t.id)}`, { name: full.name, fields: full.fields, ...(full.data != null ? { data: full.data } : {}) });
+    });
+  }
+  const entries = await api<{ items: Array<{ id: string; name: string; status?: string }> }>('GET', `${from}/content/entries`);
+  for (const e of entries.items || []) {
+    await tryIt(e.name || e.id, async () => {
+      const full = await api<{ template_id: string; name: string; slug: string; values: Record<string, unknown> }>('GET', `${from}/content/entries/${enc(e.id)}`);
+      await api('PUT', `${to}/content/entries/${enc(e.id)}`, { template_id: full.template_id, name: full.name, slug: full.slug, values: full.values });
+      if (e.status === 'published') await api('POST', `${to}/content/entries/${enc(e.id)}/publish`);
+    });
+  }
+  await tryIt('languages', async () => {
+    let langs: unknown = null;
+    try {
+      langs = await api('GET', `${from}/content/languages`);
+    } catch (e) {
+      if ((e as { status?: number }).status !== 404) throw e;
+    }
+    if (langs) await api('PUT', `${to}/content/languages`, langs);
+  });
+  const pages = await api<{ items: Array<{ id: string; name: string; data_of?: string | null }> }>('GET', `${from}/editor/pages`);
+  for (const p of (pages.items || []).filter((x) => x.data_of)) {
+    await tryIt(p.name, () => api('PUT', `${to}/editor/pages/${enc(p.id)}`, { name: p.name, data_of: p.data_of }));
+  }
+  return errs;
+}
+
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, ...kids: Array<Node | string>) => {
   const e = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
@@ -278,6 +325,8 @@ async function main(): Promise<void> {
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           const rep = await editor.PagesManager.importArchive(new Uint8Array(await r.arrayBuffer()), { mode: 'replace' });
           const errs = rep.errors.map((e: any) => `${e.name}: ${e.error}`);
+          // The folder's content (grapesjs-storage) and data records too.
+          errs.push(...(await copyContent('/studio/local', base + '/pages')));
           // The folder's forms go to luna-forms (the same ids: the pages' forms keep working).
           if (forms) {
             const local = await api<{ items: FormJSON[] }>('GET', '/studio/local/forms/forms');
@@ -302,6 +351,8 @@ async function main(): Promise<void> {
         try {
           const bytes: Uint8Array = await editor.PagesManager.exportArchive({ html: true });
           const r = await api<{ records: number }>('POST', '/studio/api/import', bytes);
+          const errs = await copyContent(base + '/pages', '/studio/local');
+          if (errs.length) throw new Error(errs.join('; '));
           // And the application's forms into forms/.
           if (forms) {
             const remote = await api<{ items: FormJSON[] }>('GET', `${forms.api}/forms`);
